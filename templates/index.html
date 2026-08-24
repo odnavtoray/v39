@@ -1,0 +1,89 @@
+{% extends "base.html" %}{% block content %}
+<div class="home-layout">
+  <aside class="leftcol">
+    <section class="sidebox">
+      <h3>{% if lang=="ru" %}Категории{% else %}Категорії{% endif %}</h3>
+      <a class="cat active" href="/">👟 <span>{% if lang=="ru" %}Обувь{% else %}Взуття{% endif %}</span></a>
+    </section>
+    <section class="sidebox wantedbox">
+      <h3>{% if lang=="ru" %}Ищете конкретное?{% else %}Шукаєте конкретне?{% endif %}</h3>
+      <p>{% if lang=="ru" %}Создайте запрос — и мы покажем совпадения, когда появится нужное объявление.{% else %}Створіть запит — і ми покажемо збіги, коли з’явиться потрібне оголошення.{% endif %}</p>
+      <a class="greenbtn" href="/wanted">＋ {% if lang=="ru" %}Создать запрос{% else %}Створити запит{% endif %}</a>
+    </section>
+    <section class="sidebox how">
+      <h3>{% if lang=="ru" %}Как это работает?{% else %}Як це працює?{% endif %}</h3>
+      <p><b>1.</b> {% if lang=="ru" %}Добавьте объявление{% else %}Додайте оголошення{% endif %}</p>
+      <p><b>2.</b> {% if lang=="ru" %}Найдите нужную сторону{% else %}Знайдіть потрібну сторону{% endif %}</p>
+      <p><b>3.</b> {% if lang=="ru" %}Договаривайтесь в чате или по телефону{% else %}Домовляйтеся в чаті або телефоном{% endif %}</p>
+    </section>
+  </aside>
+
+  <section class="centercol">
+    <div class="mobile-hero">
+      <h1 class="split-slogan">
+      <span>{% if lang=="ru" %}Твоя вторая может стать чьей-то{% else %}Твоя друга може стати чиєюсь{% endif %}</span>
+      <em class="final-word">{% if lang=="ru" %}ЕДИНСТВЕННОЙ{% else %}ЄДИНОЮ{% endif %}</em>
+    </h1>
+      <p>{% if lang=="ru" %}Бесплатные объявления для левой или правой обуви.{% else %}Безкоштовні оголошення для лівого або правого взуття.{% endif %}</p><div class="impact-stats"><span><b>{{total_listings}}</b> {% if lang=='ru' %}объявлений{% else %}оголошень{% endif %}</span><span><b>{{completed_deals}}</b> {% if lang=='ru' %}успешных находок{% else %}успішних знахідок{% endif %}</span></div>
+    </div>
+    <form class="filters" method="get">
+      <select name="side"><option value="all">{% if lang=="ru" %}Какая нога?{% else %}Яка нога?{% endif %}</option><option value="left" {% if side=="left" %}selected{% endif %}>{% if lang=="ru" %}Левая{% else %}Ліва{% endif %}</option><option value="right" {% if side=="right" %}selected{% endif %}>{% if lang=="ru" %}Правая{% else %}Права{% endif %}</option></select><input class="size-filter" name="size" value="{{'' if size=='all' else size}}" placeholder="{% if lang=='ru' %}Размер{% else %}Розмір{% endif %}" inputmode="decimal">
+      <input class="city-filter" name="city" value="{{city}}" list="cityList" placeholder="{% if lang=='ru' %}Город{% else %}Місто{% endif %}">
+      <datalist id="cityList">{% for c in cities %}<option value="{{c}}">{% endfor %}</datalist>
+      <select name="kind"><option value="all">{% if lang=="ru" %}Все объявления{% else %}Усі оголошення{% endif %}</option><option value="sale" {% if kind=="sale" %}selected{% endif %}>Продам</option><option value="exchange" {% if kind=="exchange" %}selected{% endif %}>{% if lang=="ru" %}Обменяю{% else %}Обміняю{% endif %}</option><option value="give" {% if kind=="give" %}selected{% endif %}>{% if lang=="ru" %}Отдам{% else %}Віддам{% endif %}</option></select>
+      <select name="sort"><option value="new">{% if lang=="ru" %}Новые сначала{% else %}Нові спочатку{% endif %}</option><option value="cheap" {% if sort=="cheap" %}selected{% endif %}>{% if lang=="ru" %}Дешевле{% else %}Дешевші{% endif %}</option><option value="expensive" {% if sort=="expensive" %}selected{% endif %}>{% if lang=="ru" %}Дороже{% else %}Дорожчі{% endif %}</option></select>
+      <button class="filterbtn">{% if lang=="ru" %}Применить{% else %}Застосувати{% endif %}</button>
+      <div class="view-switch"><button type="button" id="listBtn">☷</button><button type="button" id="gridBtn" class="active">▦</button></div>
+    </form>
+
+    <div class="mobile-tabs">
+      <a class="{{'active' if kind=='all' else ''}}" href="/">{% if lang=="ru" %}Все объявления{% else %}Усі оголошення{% endif %}</a>
+      <a class="{{'active' if kind=='sale' else ''}}" href="/?kind=sale">Продам</a>
+      <a class="{{'active' if kind=='exchange' else ''}}" href="/?kind=exchange">{% if lang=="ru" %}Обменяю{% else %}Обміняю{% endif %}</a>
+      <a class="{{'active' if kind=='give' else ''}}" href="/?kind=give">{% if lang=="ru" %}Отдам{% else %}Віддам{% endif %}</a>
+    </div>
+
+    <section id="catalog" class="catalog gridmode">
+      {% for l in listings %}
+      <article class="card">
+        <div class="imagewrap">
+          <a href="/listing/{{l.id}}"><img src="{{l.images[0]}}" alt="{{l.title}}"></a>
+          <div class="card-badges">
+            <span class="status {{l.kind}}">{% if l.kind=="sale" %}Продам{% elif l.kind=="exchange" %}{% if lang=="ru" %}Обменяю{% else %}Обміняю{% endif %}{% else %}{% if lang=="ru" %}Отдам{% else %}Віддам{% endif %}{% endif %}</span>
+            {% if l.condition in ["Нові","Новые"] %}<span class="condition-badge new">{% if lang=="ru" %}Новое{% else %}Нове{% endif %}</span>{% endif %}
+            {% if state_for(l).status=="reserved" %}<span class="reservation-badge">{% if lang=="ru" %}Забронировано{% else %}Заброньовано{% endif %}</span>{% endif %}
+          </div>
+          <form class="favform" method="post" action="/favorite/{{l.id}}"><button class="fav {{'is-fav' if l.id in fav_ids else ''}}">{{"♥" if l.id in fav_ids else "♡"}}</button></form>
+          <span class="imgcount">▧ 1/{{l.images|length}}</span>
+        </div>
+        <div class="cardbody">
+          <h3><a href="/listing/{{l.id}}">{{l.title}}</a></h3>
+          <p class="spec">{% if lang=="ru" %}{{"левая" if l.side=="left" else "правая"}} нога · размер{% else %}{{"ліва" if l.side=="left" else "права"}} нога · розмір{% endif %} {{l.size}} · {{l.condition}}</p>
+          <div class="price">{% if l.kind=="exchange" %}{% if lang=="ru" %}Обмен{% else %}Обмін{% endif %}{% elif l.kind=="give" %}{% if lang=="ru" %}Бесплатно{% else %}Безкоштовно{% endif %}{% else %}{% if l.previous_price and l.previous_price > l.price %}<span class="card-old-price">{{l.previous_price}} грн</span> {{l.price}} грн <span class="card-price-drop">↓</span>{% else %}{{l.price}} грн{% endif %}{% endif %}</div>
+          <p class="muted">{{l.city}}</p>
+          <div class="card-actions"><a href="/listing/{{l.id}}">💬 {% if lang=="ru" %}Чат{% else %}Чат{% endif %}</a>{% if me and l.owner.phone and not l.owner.phone.startswith("email:") %}<a href="tel:{{l.owner.phone}}">☎ {% if lang=="ru" %}Позвонить{% else %}Подзвонити{% endif %}</a>{% else %}<a href="/login">☎ {% if lang=="ru" %}Позвонить{% else %}Подзвонити{% endif %}</a>{% endif %}<button type="button" onclick="shareUrl('/listing/{{l.id}}','{{l.title|e}}')"><svg class="share-icon-ios" viewBox="0 0 28 32" aria-hidden="true">
+<path d="M14 15V2.5M14 2.5L8.7 7.8M14 2.5l5.3 5.3" fill="none" stroke="currentColor" stroke-width="2.15" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M8.5 12.5H5.8A3.8 3.8 0 0 0 2 16.3v10A3.8 3.8 0 0 0 5.8 30h16.4a3.8 3.8 0 0 0 3.8-3.7v-10a3.8 3.8 0 0 0-3.8-3.8h-2.7" fill="none" stroke="currentColor" stroke-width="2.15" stroke-linecap="round" stroke-linejoin="round"/>
+</svg></button></div>
+        </div>
+      </article>
+      {% endfor %}
+    </section>
+  </section>
+
+  <aside class="rightcol">
+    {% if me %}
+    <a class="profilebox-link" href="/profile" aria-label="{% if lang=='ru' %}Открыть мой профиль{% else %}Відкрити мій профіль{% endif %}"><section class="sidebox profilebox">
+      <h3>{% if lang=="ru" %}Мой профиль{% else %}Мій профіль{% endif %}</h3>
+      <div class="profile-head">{% if me.avatar %}<span class="avatar avatar-photo" data-avatar-preview style="{{avatar_style(me)}}"><img src="{{me.avatar}}" alt=""></span>{% else %}<span class="avatar">{{(me.name or "?")[0]|upper}}</span>{% endif %}<div><b>{{me.name}}</b></div></div>
+      <div class="trust"><small>{% if lang=="ru" %}Рейтинг доверия{% else %}Рейтинг довіри{% endif %}</small><strong>{{"%.1f"|format(me.rating)}} ★★★★★</strong><span>{{me.reviews_count}} {% if lang=="ru" %}отзывов{% else %}відгуків{% endif %}</span></div>
+      <p>✓ {% if lang=="ru" %}Успешных сделок:{% else %}Успішних угод:{% endif %} {{me.deals_count}}</p>
+      {% if me.trusted %}<span class="trusted">◎ {% if lang=="ru" %}Надёжный пользователь{% else %}Надійний користувач{% endif %}</span>{% endif %}
+    </section></a>
+    {% else %}
+    <section class="sidebox"><h3>{% if lang=="ru" %}Доверие на платформе{% else %}Довіра на платформі{% endif %}</h3><p>{% if lang=="ru" %}После входа здесь будет рейтинг, добавленный телефон и история пользователя.{% else %}Після входу тут буде рейтинг, доданий телефон та історія користувача.{% endif %}</p><a class="greenbtn" href="/login">{% if lang=="ru" %}Войти{% else %}Увійти{% endif %}</a></section>
+    {% endif %}
+    <section class="sidebox safety"><h3>{% if lang=="ru" %}Правила безопасности{% else %}Правила безпеки{% endif %}</h3><p>◉ {% if lang=="ru" %}Не отправляйте предоплату незнакомым{% else %}Не надсилайте передоплату незнайомим{% endif %}</p><p>◉ {% if lang=="ru" %}Общайтесь в чате платформы{% else %}Спілкуйтеся в чаті платформи{% endif %}</p><p>◉ {% if lang=="ru" %}Если что-то подозрительно — пожалуйтесь{% else %}Якщо щось підозріло — поскаржтесь{% endif %}</p></section>
+  </aside>
+</div>
+{% endblock %}

@@ -1,0 +1,8 @@
+{% extends "base.html" %}{% block content %}
+<div class="formpage"><section class="formcard"><h1>{% if lang=="ru" %}Модерация жалоб{% else %}Модерація скарг{% endif %}</h1>
+<p class="muted">{% if lang=="ru" %}Чат открывается администратору только в контексте жалобы; факт просмотра записывается в статистику событий.{% else %}Чат відкривається адміністратору лише в контексті скарги; факт перегляду записується в статистику подій.{% endif %}</p>
+<div class="mini-list">{% for c in complaints %}<div class="mini moderation-row"><div>⚠</div><div><b>{{c.reason}}</b><small>Listing #{{c.listing_id}}</small></div><a class="outline" href="/admin/moderation/chat/{{c.listing_id}}">{% if lang=="ru" %}Открыть для проверки{% else %}Відкрити для перевірки{% endif %}</a></div>{% else %}<p class="muted">{% if lang=="ru" %}Жалоб нет.{% else %}Скарг немає.{% endif %}</p>{% endfor %}</div>
+
+<h2>{% if lang=="ru" %}Автоматические сигналы{% else %}Автоматичні сигнали{% endif %}</h2>
+<div class="mini-list">{% for e in moderation_events %}<div class="mini moderation-row"><div>🤖</div><div><b>{{e.event_type}}</b><small>{{e.reason}} · {{e.created_at.strftime("%d.%m.%Y %H:%M")}}</small></div>{% if e.listing_id %}<a class="outline" href="/listing/{{e.listing_id}}">#{{e.listing_id}}</a>{% endif %}</div>{% else %}<p class="muted">—</p>{% endfor %}</div>
+</section></div>{% endblock %}

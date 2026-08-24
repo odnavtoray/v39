@@ -1,0 +1,21 @@
+{% extends "base.html" %}{% block content %}
+<div class="formpage"><section class="formcard narrow"><h1>{% if lang=='ru' %}Настройки{% else %}Налаштування{% endif %}</h1>
+<form method="post"><label class="setting-row"><span><b>{% if lang=='ru' %}Звук сообщений{% else %}Звук повідомлень{% endif %}</b><small>{% if lang=='ru' %}Короткий сигнал, когда приходит новое сообщение.{% else %}Короткий сигнал, коли є нове повідомлення.{% endif %}</small></span>
+<input type="checkbox" name="sound_enabled" {% if setting.sound_enabled %}checked{% endif %}></label>
+<button class="primary">{% if lang=='ru' %}Сохранить{% else %}Зберегти{% endif %}</button></form></section>
+<section class="formcard narrow"><h2>{% if lang=="ru" %}Разделы профиля{% else %}Розділи профілю{% endif %}</h2>
+<div class="settings-actions settings-links-list">
+<a class="outline" href="/notifications">🔔 {% if lang=="ru" %}Уведомления{% else %}Сповіщення{% endif %}</a>
+<a class="outline" href="/exchange-offers">↔ {% if lang=="ru" %}Предложения обмена{% else %}Пропозиції обміну{% endif %}</a>
+<a class="outline" href="/wanted">🔎 {% if lang=="ru" %}Сохранённые поиски{% else %}Збережені пошуки{% endif %}</a>
+<a class="outline" href="/messages">💬 {% if lang=="ru" %}Сообщения{% else %}Повідомлення{% endif %}</a>
+{% if admin_user(me) %}
+<a class="outline admin-stat-link" href="/admin/stats">📊 {% if lang=="ru" %}Статистика сайта{% else %}Статистика сайту{% endif %}</a>
+<a class="outline" href="/admin/moderation">🛡 {% if lang=="ru" %}Модерация{% else %}Модерація{% endif %}</a>
+{% endif %}
+</div></section>
+<section class="formcard narrow account-data-box"><h2>{% if lang=="ru" %}Управление аккаунтом{% else %}Керування акаунтом{% endif %}</h2>
+<details class="danger-zone"><summary>{% if lang=="ru" %}Удалить аккаунт{% else %}Видалити акаунт{% endif %}</summary>
+<p class="muted">{% if lang=="ru" %}Это удалит профиль и связанные данные. Для подтверждения введите DELETE.{% else %}Це видалить профіль і пов’язані дані. Для підтвердження введіть DELETE.{% endif %}</p>
+<form method="post" action="/account/delete"><input name="confirm_text" placeholder="DELETE" required><button class="danger">{% if lang=="ru" %}Удалить аккаунт навсегда{% else %}Видалити акаунт назавжди{% endif %}</button></form>
+</details></section></div>{% endblock %}

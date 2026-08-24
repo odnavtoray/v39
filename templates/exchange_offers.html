@@ -1,0 +1,31 @@
+{% extends "base.html" %}{% block content %}
+<div class="formpage"><section class="formcard">
+<h1>{% if lang=="ru" %}Предложения обмена{% else %}Пропозиції обміну{% endif %}</h1>
+
+<h2>{% if lang=="ru" %}Входящие{% else %}Вхідні{% endif %}</h2>
+<div class="offer-list">
+{% for o in incoming %}{% set target=listing_map.get(o.target_listing_id) %}{% set sender=sender_map.get(o.sender_id) %}
+<article class="exchange-card">
+  <div class="exchange-card-head"><div><b>{% if sender %}{{sender.name}}{% endif %}</b><small>{% if target %}{% if lang=="ru" %}предлагает обмен на{% else %}пропонує обмін на{% endif %} «{{target.title}}»{% endif %}</small></div><span class="offer-status {{o.status}}">{{o.status}}</span></div>
+  <h3>{{o.offer_brand}} {{o.offer_model}} · {{o.offer_size}} · {{("левая" if o.offer_side=="left" else "правая") if lang=="ru" else ("ліва" if o.offer_side=="left" else "права")}}</h3>
+  {% if o.offer_condition %}<p class="muted">{{o.offer_condition}}</p>{% endif %}
+  {% if o.images %}<div class="offer-images">{% for img in o.images %}<img src="{{img}}" alt="">{% endfor %}</div>{% endif %}
+  {% if o.offer_description %}<p>{{o.offer_description}}</p>{% endif %}
+  {% if o.note %}<p class="offer-note">💬 {{o.note}}</p>{% endif %}
+  {% if o.status=="pending" %}<div class="offer-actions"><form method="post" action="/exchange-offer/{{o.id}}/accepted"><button class="primary small">{% if lang=="ru" %}Принять{% else %}Прийняти{% endif %}</button></form><form method="post" action="/exchange-offer/{{o.id}}/declined"><button class="outline small">{% if lang=="ru" %}Отклонить{% else %}Відхилити{% endif %}</button></form></div>{% endif %}
+</article>
+{% else %}<p class="muted">{% if lang=="ru" %}Пока нет входящих предложений.{% else %}Поки немає вхідних пропозицій.{% endif %}</p>{% endfor %}
+</div>
+
+<h2>{% if lang=="ru" %}Отправленные{% else %}Надіслані{% endif %}</h2>
+<div class="offer-list">
+{% for o in outgoing %}{% set target=listing_map.get(o.target_listing_id) %}
+<article class="exchange-card">
+  <div class="exchange-card-head"><div><b>{{o.offer_brand}} {{o.offer_model}}</b><small>{% if target %}→ «{{target.title}}»{% endif %}</small></div><span class="offer-status {{o.status}}">{{o.status}}</span></div>
+  {% if o.images %}<div class="offer-images">{% for img in o.images %}<img src="{{img}}" alt="">{% endfor %}</div>{% endif %}
+  {% if o.offer_description %}<p>{{o.offer_description}}</p>{% endif %}
+</article>
+{% else %}<p class="muted">{% if lang=="ru" %}Пока ничего не отправлено.{% else %}Поки нічого не надіслано.{% endif %}</p>{% endfor %}
+</div>
+</section></div>
+{% endblock %}

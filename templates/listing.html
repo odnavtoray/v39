@@ -1,0 +1,177 @@
+{% extends "base.html" %}{% block content %}
+<div class="detail-layout">
+  <section class="gallery">
+    <div class="gallery-main" id="galleryMain">
+      <button type="button" class="gallery-arrow gallery-prev" aria-label="{% if lang=='ru' %}Предыдущее фото{% else %}Попереднє фото{% endif %}"><svg class="gallery-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      <img id="detailMain" src="{{listing.images[0]}}" alt="{{listing.title}}">
+      <button type="button" class="gallery-arrow gallery-next" aria-label="{% if lang=='ru' %}Следующее фото{% else %}Наступне фото{% endif %}"><svg class="gallery-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      <div class="gallery-counter"><span id="galleryCurrent">1</span> / {{listing.images|length}}</div>
+    </div>
+    <div class="gallery-thumbs" id="galleryThumbs">{% for img in listing.images %}<button class="{% if loop.first %}active{% endif %}" type="button" data-index="{{loop.index0}}" data-src="{{img}}"><img src="{{img}}"></button>{% endfor %}</div>
+  </section>
+  <div class="listing-photo-viewer" id="listingPhotoViewer" hidden>
+    <button type="button" class="listing-photo-viewer-close" id="listingPhotoViewerClose" aria-label="{% if lang=='ru' %}Закрыть{% else %}Закрити{% endif %}">×</button>
+    <button type="button" class="listing-photo-viewer-arrow viewer-prev" aria-label="{% if lang=='ru' %}Предыдущее фото{% else %}Попереднє фото{% endif %}">‹</button>
+    <img id="listingPhotoViewerImage" alt="{{listing.title}}">
+    <button type="button" class="listing-photo-viewer-arrow viewer-next" aria-label="{% if lang=='ru' %}Следующее фото{% else %}Наступне фото{% endif %}">›</button>
+    <div class="listing-photo-viewer-counter"><span id="listingPhotoViewerCurrent">1</span> / {{listing.images|length}}</div>
+  </div>
+
+  <section class="detailcard">
+    {% if listing_state.status=="reserved" %}
+    <div class="reserved-banner">🔖 {% if lang=="ru" %}Забронировано{% else %}Заброньовано{% endif %}</div>
+    {% elif listing_state.status != "active" %}
+    <div class="inactive-banner">{% if lang=="ru" %}Объявление неактивно{% else %}Оголошення неактивне{% endif %} ·
+      {% if listing_state.status=="sold" %}Продано
+      {% elif listing_state.status=="given" %}{% if lang=="ru" %}Отдано{% else %}Віддано{% endif %}
+      {% elif listing_state.status=="exchanged" %}{% if lang=="ru" %}Обменяно{% else %}Обміняно{% endif %}
+      {% else %}{% if lang=="ru" %}Срок активности завершён{% else %}Термін активності завершено{% endif %}{% endif %}
+    </div>
+    {% endif %}
+    <div class="detail-top">
+      <div><span class="sidepill side-{{listing.side}}">{{ ("ЛЕВАЯ" if listing.side=="left" else "ПРАВАЯ") if lang=="ru" else ("ЛІВА" if listing.side=="left" else "ПРАВА") }}</span><h1>{{listing.title}}</h1></div>
+      <div class="detail-icons"><form method="post" action="/favorite/{{listing.id}}"><button class="detail-fav {{'is-fav' if is_fav else ''}}">{{"♥" if is_fav else "♡"}}</button></form><button type="button" onclick="shareListing()" aria-label="share"><svg class="share-icon-ios" viewBox="0 0 28 32" aria-hidden="true">
+<path d="M14 15V2.5M14 2.5L8.7 7.8M14 2.5l5.3 5.3" fill="none" stroke="currentColor" stroke-width="2.15" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M8.5 12.5H5.8A3.8 3.8 0 0 0 2 16.3v10A3.8 3.8 0 0 0 5.8 30h16.4a3.8 3.8 0 0 0 3.8-3.7v-10a3.8 3.8 0 0 0-3.8-3.8h-2.7" fill="none" stroke="currentColor" stroke-width="2.15" stroke-linecap="round" stroke-linejoin="round"/>
+</svg></button></div>
+    </div>
+    <div class="price big">
+      {% if listing.kind=="exchange" %}{% if lang=="ru" %}Обмен{% else %}Обмін{% endif %}
+      {% elif listing.kind=="give" %}{% if lang=="ru" %}Бесплатно{% else %}Безкоштовно{% endif %}
+      {% else %}
+        {% if listing.previous_price and listing.previous_price > listing.price %}
+          <span class="old-price">{{listing.previous_price}} грн</span>
+          <span class="current-price">{{listing.price}} грн</span>
+          <span class="price-drop-badge">{% if lang=="ru" %}Цена снижена{% else %}Ціну знижено{% endif %}</span>
+        {% else %}
+          {{listing.price}} грн
+        {% endif %}
+      {% endif %}
+    </div>
+    <p class="detail-spec">{{listing.brand}} {{listing.model}} · {% if lang=='ru' %}Размер{% else %}Розмір{% endif %} {{listing.size}}{% if listing.insole_length %} · {% if lang=='ru' %}стелька{% else %}устілка{% endif %} {{listing.insole_length}} см{% endif %} · {{listing.condition}} · {{listing.city}}</p>
+    <div class="detail-chips"><span>{{ {'men':('Мужская' if lang=='ru' else 'Чоловіча'),'women':('Женская' if lang=='ru' else 'Жіноча'),'unisex':('Унисекс' if lang=='ru' else 'Унісекс')}.get(listing.gender,'Унісекс') }}</span>{% if listing.delivery %}{% for d in listing.delivery.split(',') %}<span>{{ {'meet':('Личная встреча' if lang=='ru' else 'Особиста зустріч'),'nova':'Нова пошта','ukr':'Укрпошта'}.get(d,d) }}</span>{% endfor %}{% endif %}</div>
+    {% if listing.kind=='exchange' and (listing.exchange_side or listing.exchange_size or listing.exchange_type or listing.exchange_other) %}<div class="exchange-wants"><b>↔ {% if lang=='ru' %}Хочу обменять на:{% else %}Хочу обміняти на:{% endif %}</b> {% if listing.exchange_side %}{{ ('левую' if listing.exchange_side=='left' else 'правую') if lang=='ru' else ('ліву' if listing.exchange_side=='left' else 'праву') }}{% endif %} {% if listing.exchange_size %}· {{listing.exchange_size}}{% endif %} {% if listing.exchange_type %}· {{ {'sneakers':('Кроссовки' if lang=='ru' else 'Кросівки'),'shoes':('Туфли' if lang=='ru' else 'Туфлі'),'boots':('Ботинки' if lang=='ru' else 'Черевики'),'sandals':('Сандалии' if lang=='ru' else 'Сандалі'),'slippers':('Шлёпанцы / сланцы' if lang=='ru' else 'Шльопанці / сланці'),'moccasins':('Мокасины' if lang=='ru' else 'Мокасини'),'other':('Другое' if lang=='ru' else 'Інше')}.get(listing.exchange_type, listing.exchange_type) }}{% endif %} {% if listing.exchange_other %}· {{listing.exchange_other}}{% endif %}</div>{% endif %}
+    <p>{{listing.description}}</p>
+
+    {% if me and me.id == listing.owner_id %}
+    <div class="owner-actions">
+      <a class="editbtn" href="/listing/{{listing.id}}/edit">✎ {% if lang=='ru' %}Редактировать{% else %}Редагувати{% endif %}</a>
+      {% if listing_state.status in ["active","reserved"] %}
+      <form method="post" action="/listing/{{listing.id}}/reserve"><button class="outline">{% if listing_state.status=="reserved" %}{% if lang=="ru" %}Отменить бронь{% else %}Скасувати бронь{% endif %}{% else %}{% if lang=="ru" %}Забронировать{% else %}Забронювати{% endif %}{% endif %}</button></form>
+      
+      <form method="post" action="/listing/{{listing.id}}/close" class="close-actions">
+        <select name="status">
+          <option value="sold">{% if lang=="ru" %}Продано{% else %}Продано{% endif %}</option>
+          <option value="given">{% if lang=="ru" %}Отдано{% else %}Віддано{% endif %}</option>
+          <option value="exchanged">{% if lang=="ru" %}Обменяно{% else %}Обміняно{% endif %}</option>
+          <option value="inactive">{% if lang=="ru" %}Снять без сделки{% else %}Зняти без угоди{% endif %}</option>
+        </select><button class="outline">{% if lang=="ru" %}Завершить объявление{% else %}Завершити оголошення{% endif %}</button>
+      </form>
+      {% endif %}
+    </div>
+    {% endif %}
+
+    <hr>
+    <a class="seller seller-link" href="/user/{{listing.owner.id}}">
+      {% if listing.owner.avatar %}<span class="avatar avatar-photo" data-avatar-preview style="{{avatar_style(listing.owner)}}"><img src="{{listing.owner.avatar}}" alt=""></span>{% else %}<span class="avatar">{{(listing.owner.name or "?")[0]|upper}}</span>{% endif %}
+      <div><h3>{{listing.owner.name}} {% if listing.owner.trusted %}<span class="check">✓</span>{% endif %}</h3>
+      <p>{% if listing.owner.phone and not listing.owner.phone.startswith("email:") %}☎ {% if lang=='ru' %}Телефон добавлен{% else %}Телефон додано{% endif %} · {% endif %}★ {{owner_rating}} · {{listing.owner.deals_count}} {% if lang=='ru' %}сделок{% else %}угод{% endif %}{% if listing.owner.created_at %} · {% if lang=='ru' %}на сайте с{% else %}на сайті з{% endif %} {{listing.owner.created_at.strftime('%m.%Y')}}{% endif %} · {{last_seen_text(listing.owner)}}</p></div>
+    </a>
+    {% if me %}
+      {% if listing.owner.phone and not listing.owner.phone.startswith("email:") and (listing.owner.show_phone or me.id==listing.owner.id) %}
+        <a class="phone phone-link" href="tel:{{listing.owner.phone}}">☎ {{listing.owner.phone}} · {% if lang=="ru" %}Позвонить{% else %}Подзвонити{% endif %}</a>
+      {% elif listing.owner.phone and not listing.owner.phone.startswith("email:") %}
+        <div class="phone phone-missing">☎ {% if lang=="ru" %}Продавец скрыл номер телефона{% else %}Продавець приховав номер телефону{% endif %}</div>
+      {% else %}
+        <div class="phone phone-missing">☎ {% if lang=="ru" %}Продавец не добавил номер телефона{% else %}Продавець не додав номер телефону{% endif %}</div>
+      {% endif %}
+    {% else %}
+      <a class="outline fullbtn" href="/login">{% if lang=='ru' %}Войти, чтобы увидеть телефон{% else %}Увійти, щоб побачити телефон{% endif %}</a>
+    {% endif %}
+
+    {% if me and me.id != listing.owner_id %}
+    <div class="user-relationship-actions">
+      <form method="post" action="/user/{{listing.owner.id}}/block"><button class="outline small">{% if is_blocked %}{% if lang=="ru" %}Разблокировать пользователя{% else %}Розблокувати користувача{% endif %}{% else %}{% if lang=="ru" %}Заблокировать пользователя{% else %}Заблокувати користувача{% endif %}{% endif %}</button></form>
+    </div>
+    {% if listing.kind=="exchange" and not is_blocked and listing_state.status=="active" %}
+    <details class="exchange-offer-box">
+      <summary>↔ {% if lang=="ru" %}Предложить обмен{% else %}Запропонувати обмін{% endif %}</summary>
+      <form method="post" action="/exchange-offer/{{listing.id}}" enctype="multipart/form-data" id="exchangeOfferForm">
+        <div class="exchange-offer-fields">
+          <label>{% if lang=="ru" %}Бренд{% else %}Бренд{% endif %}<input name="offer_brand" maxlength="80" required placeholder="Nike"></label>
+          <label>{% if lang=="ru" %}Модель{% else %}Модель{% endif %}<input name="offer_model" maxlength="120" required placeholder="Air Max 90"></label>
+          <label>{% if lang=="ru" %}Размер{% else %}Розмір{% endif %}<input name="offer_size" maxlength="20" required placeholder="42"></label>
+          <label>{% if lang=="ru" %}Какая нога{% else %}Яка нога{% endif %}<select name="offer_side" required><option value="left">{% if lang=="ru" %}Левая{% else %}Ліва{% endif %}</option><option value="right">{% if lang=="ru" %}Правая{% else %}Права{% endif %}</option></select></label>
+          <label>{% if lang=="ru" %}Состояние{% else %}Стан{% endif %}<input name="offer_condition" maxlength="50" placeholder="{% if lang=='ru' %}Например: ношеные{% else %}Наприклад: ношені{% endif %}"></label>
+          <label class="wide">{% if lang=="ru" %}Описание{% else %}Опис{% endif %}<textarea name="offer_description" maxlength="500" rows="3" placeholder="{% if lang=='ru' %}Коротко опишите обувь...{% else %}Коротко опишіть взуття...{% endif %}"></textarea></label>
+        </div>
+        <div class="exchange-photo-editor">
+          <label class="outline exchange-photo-add">＋ {% if lang=="ru" %}Добавить фото{% else %}Додати фото{% endif %}<input type="file" id="exchangePhotoInput" name="offer_images" accept="image/*" multiple hidden></label>
+          <p class="hint">{% if lang=="ru" %}До 5 фото. Можно менять порядок, поворачивать и удалять до отправки.{% else %}До 5 фото. Можна змінювати порядок, повертати та видаляти до відправлення.{% endif %}</p>
+          <div id="exchangePhotoStrip" class="exchange-photo-strip"></div>
+        </div>
+        <label>{% if lang=="ru" %}Комментарий к предложению{% else %}Коментар до пропозиції{% endif %}<textarea name="note" maxlength="300" rows="2"></textarea></label>
+        <button class="primary">{% if lang=="ru" %}Отправить предложение{% else %}Надіслати пропозицію{% endif %}</button>
+      </form>
+    </details>
+    {% endif %}
+    {% endif %}
+
+    {% if me and me.id != listing.owner_id and listing_state.status=="active" and not is_blocked %}
+    <form method="post" action="/message/{{listing.id}}" class="messagebox" enctype="multipart/form-data" id="chatMessageForm">
+      <textarea name="text" rows="3" placeholder="{% if lang=='ru' %}Написать продавцу...{% else %}Написати продавцю...{% endif %}"></textarea>
+      <div id="chatPreview" class="chat-preview" hidden>
+        <img id="chatPreviewImg" alt="">
+        <div><button type="button" class="outline small" id="retakeChatPhoto" hidden>{% if lang=="ru" %}Переснять{% else %}Перезняти{% endif %}</button>
+        <button type="button" class="danger small" id="removeChatPhoto">× {% if lang=="ru" %}Удалить фото{% else %}Видалити фото{% endif %}</button></div>
+      </div>
+      <div class="chat-compose-tools">
+        <label class="chat-tool">📎 <span>{% if lang=="ru" %}Фото{% else %}Фото{% endif %}</span><input id="chatImageInput" type="file" name="chat_image" accept="image/*" hidden></label>
+        <label class="chat-tool">📷 <span>{% if lang=="ru" %}Камера{% else %}Камера{% endif %}</span><input id="chatCameraInput" type="file" name="chat_image_camera" accept="image/*" capture="environment" hidden></label>
+        <button class="primary">{% if lang=='ru' %}Отправить{% else %}Надіслати{% endif %}</button>
+      </div>
+    </form>
+    {% endif %}
+
+    {% if msgs %}
+    <div class="chat">
+      {% for m in msgs %}
+        {% set parts=message_parts(m.text) %}
+        <div class="bubble {% if me and m.sender_id==me.id %}mine{% endif %}">
+          {% if parts.image %}<a href="{{parts.image}}" target="_blank"><img class="chat-bubble-image" src="{{parts.image}}"></a>{% else %}{{parts.text}}{% endif %}
+        </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if review_targets %}
+    <section class="review-form">
+      <h3>{% if lang=="ru" %}Оставить отзыв участнику сделки{% else %}Залишити відгук учаснику угоди{% endif %}</h3>
+      {% for target in review_targets %}
+      <form method="post" action="/review/{{listing.id}}/{{target.id}}" class="owner-review-target">
+        <b>{{target.name}}</b>
+        <select name="stars"><option value="5">5 ★</option><option value="4">4 ★</option><option value="3">3 ★</option><option value="2">2 ★</option><option value="1">1 ★</option></select>
+        <input name="text" maxlength="500" placeholder="{% if lang=='ru' %}Короткий отзыв{% else %}Короткий відгук{% endif %}">
+        <button class="outline small">{% if lang=="ru" %}Оставить отзыв{% else %}Залишити відгук{% endif %}</button>
+      </form>
+      {% endfor %}
+    </section>
+    {% endif %}
+
+    {% if can_leave_review %}
+    <section class="review-form">
+      <h3>{% if lang=="ru" %}Оставить отзыв после сделки{% else %}Залишити відгук після угоди{% endif %}</h3>
+      <form method="post" action="/review/{{listing.id}}/{{listing.owner_id}}">
+        <div class="star-input">
+          {% for n in [5,4,3,2,1] %}<input id="star{{n}}" type="radio" name="stars" value="{{n}}" {% if n==5 %}checked{% endif %}><label for="star{{n}}">★</label>{% endfor %}
+        </div>
+        <textarea name="text" maxlength="500" rows="3" placeholder="{% if lang=='ru' %}Ваш отзыв...{% else %}Ваш відгук...{% endif %}"></textarea>
+        <button class="primary">{% if lang=="ru" %}Опубликовать отзыв{% else %}Опублікувати відгук{% endif %}</button>
+      </form>
+    </section>
+    {% endif %}
+
+    <details class="complaint"><summary>{% if lang=='ru' %}Пожаловаться{% else %}Поскаржитися{% endif %}</summary><form method="post" action="/complaint/{{listing.id}}"><select name="reason"><option>{% if lang=='ru' %}Не обувь / постороннее фото{% else %}Не взуття / стороннє фото{% endif %}</option><option>{% if lang=='ru' %}Дубликат объявления{% else %}Дублікат оголошення{% endif %}</option><option>{% if lang=='ru' %}Мошенничество{% else %}Шахрайство{% endif %}</option><option>{% if lang=='ru' %}Недостоверная информация{% else %}Неправдива інформація{% endif %}</option><option>{% if lang=='ru' %}Объявление неактуально{% else %}Оголошення неактуальне{% endif %}</option><option>{% if lang=='ru' %}Оскорбительное поведение{% else %}Образлива поведінка{% endif %}</option><option>{% if lang=='ru' %}Другое{% else %}Інше{% endif %}</option></select><button class="danger">{% if lang=='ru' %}Отправить жалобу{% else %}Надіслати скаргу{% endif %}</button></form></details>
+  </section>
+</div>
+{% endblock %}

@@ -1,0 +1,35 @@
+{% extends "base.html" %}{% block content %}
+<div class="profile-page public-profile">
+<section class="formcard profile-main">
+<div class="profile-head large">
+{% if user.avatar %}
+  <span class="avatar avatar-photo" data-avatar-preview style="{{avatar_style(user)}}"><img src="{{user.avatar}}" alt=""></span>
+{% else %}
+  <span class="avatar">{{(user.name or "?")[0]|upper}}</span>
+{% endif %}
+<div>
+  <h1>{{user.name}}</h1>
+  {% if user.show_phone and user.phone and not user.phone.startswith("email:") %}
+  <div class="public-phone-row">
+    <a class="public-phone-link" href="tel:{{user.phone}}">{{user.phone}}</a>
+    <div class="public-phone-actions">
+      <a href="tel:{{user.phone}}" class="outline small">📞 {% if lang=="ru" %}Позвонить{% else %}Подзвонити{% endif %}</a>
+      <a href="https://wa.me/{{user.phone|replace('+','')|replace(' ','')|replace('-','')|replace('(','')|replace(')','')}}" target="_blank" rel="noopener" class="outline small">WhatsApp</a>
+      <a href="viber://chat?number={{user.phone}}" class="outline small">Viber</a>
+    </div>
+  </div>
+  {% endif %}
+</div>
+</div>
+<div class="trust wide-trust"><small>{% if lang=="ru" %}Рейтинг{% else %}Рейтинг{% endif %}</small><strong>★ {{rating_avg}}</strong><span>{{reviews|length}} {% if lang=="ru" %}отзывов{% else %}відгуків{% endif %}</span></div>
+<div class="profile-meta-line">{% if user.created_at %}{% if lang=="ru" %}На сайте с{% else %}На сайті з{% endif %} {{user.created_at.strftime("%m.%Y")}} · {% endif %}{{last_seen_text(user)}}</div>
+<div class="rating-dist">{% for n,c in rating_dist.items() %}<div><span>{{n}} ★</span><b>{{c}}</b></div>{% endfor %}</div>
+{% if me and me.id!=user.id %}<form method="post" action="/user/{{user.id}}/block"><button class="outline small">{% if blocked_by_me %}{% if lang=="ru" %}Разблокировать{% else %}Розблокувати{% endif %}{% else %}{% if lang=="ru" %}Заблокировать пользователя{% else %}Заблокувати користувача{% endif %}{% endif %}</button></form>{% endif %}
+</section>
+<section class="formcard"><h2>{% if lang=="ru" %}Отзывы{% else %}Відгуки{% endif %}</h2>
+<div class="reviews">{% for r in reviews %}{% set reviewer=reviewer_map.get(r.reviewer_id) %}<article class="review">{% if reviewer %}<div class="review-author">{% if reviewer.avatar %}<span class="review-avatar avatar-photo" data-avatar-preview style="{{avatar_style(reviewer)}}"><img src="{{reviewer.avatar}}" alt=""></span>{% else %}<span class="review-avatar">{{(reviewer.name or "?")[0]|upper}}</span>{% endif %}<b>{{reviewer.name}}</b></div>{% endif %}<div class="review-stars">{{"★"*r.stars}}{{"☆"*(5-r.stars)}}</div><p>{{r.text or ("Без комментария" if lang=="ru" else "Без коментаря")}}</p><small>{{r.created_at.strftime("%d.%m.%Y")}}</small></article>
+{% else %}<p class="muted">{% if lang=="ru" %}Отзывов пока нет.{% else %}Відгуків поки немає.{% endif %}</p>{% endfor %}</div>
+</section>
+<section class="formcard"><h2>{% if lang=="ru" %}Активные объявления пользователя{% else %}Активні оголошення користувача{% endif %}</h2>
+<div class="mini-list">{% for l in active_listings %}<div class="mini"><img src="{{l.images[0]}}"><a href="/listing/{{l.id}}">{{l.title}}</a></div>{% else %}<p class="muted">{% if lang=="ru" %}Нет активных объявлений.{% else %}Немає активних оголошень.{% endif %}</p>{% endfor %}</div>
+</section></div>{% endblock %}

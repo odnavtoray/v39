@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="{{'ru' if lang=='ru' else 'uk'}}"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{% block title %}1/2 — Одна Друга{% endblock %}</title>
+<link rel="stylesheet" href="/static/style.css">
+</head><body>
+<header class="topbar">
+  <div class="brand">
+    <button type="button" class="brand-logo-button" id="openLogoModal"
+            aria-label="{% if lang=='ru' %}Увеличить эмблему{% else %}Збільшити емблему{% endif %}">
+      <span class="brand-logo-wrap"><img src="/static/logo.jpg" class="brand-logo" alt="1/2 Одна Друга"></span>
+    </button>
+    <a class="brand-copy-link" href="/">
+      <span class="brand-copy">
+        <b>{% if lang=="ru" %}ОДНА ВТОРАЯ{% else %}ОДНА ДРУГА{% endif %}</b>
+        <small class="brand-slogan">
+          <span>{% if lang=="ru" %}Твоя вторая может стать чьей-то{% else %}Твоя друга може стати чиєюсь{% endif %}</span>
+          <em class="final-word">{% if lang=="ru" %}ЕДИНСТВЕННОЙ{% else %}ЄДИНОЮ{% endif %}</em>
+        </small>
+      </span>
+    </a>
+  </div>
+  {% if request.endpoint == "index" %}<form class="top-search" action="/" method="get"><span>⌕</span><input name="q" placeholder="{% if lang=='ru' %}Что ищете?{% else %}Що шукаєте?{% endif %}"></form>{% endif %}
+  <nav class="topnav">
+    <a class="nav-add" href="/listing/new">＋ {% if lang=="ru" %}Добавить объявление{% else %}Додати оголошення{% endif %}</a>
+    <a href="/profile">♡ {% if lang=="ru" %}Избранное{% else %}Обране{% endif %}</a>
+    <a class="messages-link" href="/messages">✉ {% if lang=="ru" %}Сообщения{% else %}Повідомлення{% endif %}{% if unread_count %}<b class="unread-badge">{{unread_count}}</b>{% endif %}</a>
+    <a href="/wanted">🔎 {% if lang=="ru" %}Мои поиски{% else %}Мої пошуки{% endif %}</a>
+    {% if me %}<a href="/notifications">🔔 {% if lang=="ru" %}Уведомления{% else %}Сповіщення{% endif %}{% if notification_count %}<b class="unread-badge">{{notification_count}}</b>{% endif %}</a><a href="/exchange-offers">↔ {% if lang=="ru" %}Обмены{% else %}Обміни{% endif %}</a>{% endif %}
+    <span class="account-block">
+      {% if me %}<a class="account-name" href="/profile">{% if me.avatar %}<span class="account-avatar avatar-photo" data-avatar-preview style="{{avatar_style(me)}}"><img src="{{me.avatar}}" alt=""></span>{% else %}<span class="account-avatar">{{(me.name or "?")[0]|upper}}</span>{% endif %}<span>{{ me.name }}</span></a>{% else %}<a class="account-name" href="/login">◯ {% if lang=="ru" %}Войти / Регистрация{% else %}Увійти / Зареєструватися{% endif %}</a>{% endif %}
+      <span class="lang-switch"><a class="{{'active' if lang=='uk' else ''}}" href="/language/uk">UA</a><i>|</i><a class="{{'active' if lang=='ru' else ''}}" href="/language/ru">RU</a></span>
+    </span>
+  </nav>
+</header>
+<div class="mainnav">
+  <a class="{{'active' if request.endpoint=='index' and request.args.get('kind','all')=='all' else ''}}" href="/">{% if lang=="ru" %}Главная{% else %}Головна{% endif %}</a>
+  <a class="{{'active' if request.args.get('kind')=='sale' else ''}}" href="/?kind=sale">Продам</a>
+  <a class="{{'active' if request.args.get('kind')=='give' else ''}}" href="/?kind=give">{% if lang=="ru" %}Отдам{% else %}Віддам{% endif %}</a>
+  <a class="{{'active' if request.args.get('kind')=='exchange' else ''}}" href="/?kind=exchange">{% if lang=="ru" %}Обменяю{% else %}Обміняю{% endif %}</a>
+  <a class="search-specific {{'active-wanted' if request.path.startswith('/wanted') else ''}}" href="/wanted">◎ {% if lang=="ru" %}Ищу конкретное{% else %}Шукаю конкретне{% endif %}</a>
+</div>
+<main class="shell">
+{% with messages=get_flashed_messages() %}{% if messages %}<div class="flash">{{messages[-1]}}</div>{% endif %}{% endwith %}
+{% block content %}{% endblock %}
+</main>
+<a class="feedback-float" href="/feedback">💡 <span>{% if lang=="ru" %}Предложить идею{% else %}Запропонувати ідею{% endif %}</span></a>
+<nav class="mobile-nav">
+  <a href="/">⌂<span>{% if lang=="ru" %}Главная{% else %}Головна{% endif %}</span></a>
+  <a href="/profile">♡<span>{% if lang=="ru" %}Избранное{% else %}Обране{% endif %}</span></a>
+  <a href="/listing/new" class="mobile-add-action"><span class="mobile-add-circle">+</span><span>{% if lang=="ru" %}Добавить{% else %}Додати{% endif %}</span></a>
+  <a href="/messages" class="mobile-messages">☵{% if unread_count %}<b class="unread-badge">{{unread_count}}</b>{% endif %}<span>{% if lang=="ru" %}Чаты{% else %}Чати{% endif %}</span></a>
+  <a href="/profile">◯<span>{% if lang=="ru" %}Профиль{% else %}Профіль{% endif %}</span></a>
+</nav>
+<footer class="site-footer">
+  <div><b>1/2 — Одна Друга</b><span>{% if lang=="ru" %}Площадка помогает пользователям находить друг друга и не является стороной сделки.{% else %}Платформа допомагає користувачам знаходити одне одного та не є стороною угоди.{% endif %}</span></div>
+  <div class="footer-links"><a href="/safety">{% if lang=="ru" %}Безопасность и ответственность{% else %}Безпека та відповідальність{% endif %}</a><a href="/feedback">{% if lang=="ru" %}Предложить идею{% else %}Запропонувати ідею{% endif %}</a></div>
+</footer>
+<div class="logo-lightbox" id="logoLightbox" hidden role="dialog" aria-modal="true" aria-label="Logo">
+  <button class="logo-lightbox-close" id="closeLogoModal" type="button" aria-label="Close">×</button>
+  <img src="/static/logo.jpg" alt="Одна Друга">
+</div>
+
+<script>
+window.ODNA_DRUGA_CSRF = "{{ csrf_token() }}";
+(function(){
+  const token=window.ODNA_DRUGA_CSRF;
+  function protectForms(root=document){
+    root.querySelectorAll('form[method="post"],form[method="POST"]').forEach(form=>{
+      if(form.querySelector('input[name="_csrf_token"]')) return;
+      const input=document.createElement("input");
+      input.type="hidden"; input.name="_csrf_token"; input.value=token;
+      form.appendChild(input);
+    });
+  }
+  protectForms();
+
+  const observer=new MutationObserver(()=>protectForms());
+  observer.observe(document.documentElement,{childList:true,subtree:true});
+
+  const originalFetch=window.fetch;
+  window.fetch=function(input,init={}){
+    const method=String(init.method||"GET").toUpperCase();
+    if(["POST","PUT","PATCH","DELETE"].includes(method)){
+      const url=typeof input==="string"?input:(input?.url||"");
+      const sameOrigin=!url || url.startsWith("/") || url.startsWith(location.origin);
+      if(sameOrigin){
+        const headers=new Headers(init.headers||{});
+        headers.set("X-CSRF-Token",token);
+        init={...init,headers};
+      }
+    }
+    return originalFetch(input,init);
+  };
+})();
+</script>
+
+<script src="/static/app.js"></script>
+
+
+<div class="avatar-viewer" id="avatarViewer" hidden>
+  <button class="avatar-viewer-close" id="avatarViewerClose" type="button" aria-label="Close">×</button>
+  <div class="avatar-viewer-circle" id="avatarViewerCircle">
+    <img id="avatarViewerImage" alt="">
+  </div>
+</div>
+</body></html>

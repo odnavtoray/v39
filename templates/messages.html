@@ -1,0 +1,20 @@
+{% extends "base.html" %}{% block content %}
+<div class="formpage"><section class="formcard"><h1>{% if lang=="ru" %}Сообщения{% else %}Повідомлення{% endif %}</h1>
+<div class="chat-tabs">
+<button class="chat-tab active" data-tab="buying">{% if lang=="ru" %}Покупаю{% else %}Купую{% endif %}{% if buying_unread %}<span class="tab-unread-badge">{{buying_unread}}</span>{% endif %}</button>
+<button class="chat-tab" data-tab="selling">{% if lang=="ru" %}Продаю{% else %}Продаю{% endif %}{% if selling_unread %}<span class="tab-unread-badge">{{selling_unread}}</span>{% endif %}</button>
+</div>
+<div id="buying" class="chat-tab-panel active">
+{% for x in buying %}<a class="message-row" href="{{x.chat_url}}">
+{% if x.partner %}{% if x.partner.avatar %}<span class="message-avatar avatar-photo" data-avatar-preview style="{{avatar_style(x.partner)}}"><img src="{{x.partner.avatar}}" alt=""></span>{% else %}<span class="message-avatar">{{(x.partner.name or "?")[0]|upper}}</span>{% endif %}{% else %}<div class="message-avatar">✉</div>{% endif %}<div>{% if x.listing %}<b>{{x.listing.title}}</b>{% endif %}
+{% if x.parts.image %}<img class="chat-thumb" src="{{x.parts.image}}">{% else %}<p>{{x.parts.text}}</p>{% endif %}
+<small>{% if lang=="ru" %}Вы покупаете{% else %}Ви купуєте{% endif %}</small></div></a>
+{% else %}<p class="muted">{% if lang=="ru" %}Здесь будут переписки по объявлениям, которые вы хотите купить.{% else %}Тут будуть переписки за оголошеннями, які ви хочете купити.{% endif %}</p>{% endfor %}
+</div>
+<div id="selling" class="chat-tab-panel">
+{% for x in selling %}<a class="message-row" href="{{x.chat_url}}">
+{% if x.partner %}{% if x.partner.avatar %}<span class="message-avatar avatar-photo" data-avatar-preview style="{{avatar_style(x.partner)}}"><img src="{{x.partner.avatar}}" alt=""></span>{% else %}<span class="message-avatar">{{(x.partner.name or "?")[0]|upper}}</span>{% endif %}{% else %}<div class="message-avatar">✉</div>{% endif %}<div>{% if x.listing %}<b>{{x.listing.title}}</b>{% endif %}
+{% if x.parts.image %}<img class="chat-thumb" src="{{x.parts.image}}">{% else %}<p>{{x.parts.text}}</p>{% endif %}
+<small>{% if lang=="ru" %}Вы продаёте{% else %}Ви продаєте{% endif %}</small></div></a>
+{% else %}<p class="muted">{% if lang=="ru" %}Здесь будут сообщения покупателей по вашим объявлениям.{% else %}Тут будуть повідомлення покупців щодо ваших оголошень.{% endif %}</p>{% endfor %}
+</div></section></div>{% endblock %}

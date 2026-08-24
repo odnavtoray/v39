@@ -1,0 +1,14 @@
+{% extends "base.html" %}{% block content %}
+<div class="formpage"><section class="formcard narrow auth-card">
+<h1>{% if lang=="ru" %}Вход{% else %}Вхід{% endif %}</h1>
+<p class="muted">{% if lang=="ru" %}Входите по электронной почте и своему паролю.{% else %}Входьте через електронну пошту та свій пароль.{% endif %}</p>
+<form method="post">
+<label>{% if lang=="ru" %}Электронная почта{% else %}Електронна пошта{% endif %}<input type="email" name="email" autocomplete="email" required></label>
+<label>{% if lang=="ru" %}Пароль{% else %}Пароль{% endif %}<span class="password-wrap"><input id="loginPassword" type="password" name="password" required><button type="button" class="password-eye" data-password-toggle="loginPassword">◉</button></span></label>
+<label class="remember-row"><input type="checkbox" name="remember" checked> {% if lang=="ru" %}Запомнить меня{% else %}Запам’ятати мене{% endif %}</label>
+<button class="primary">{% if lang=="ru" %}Войти{% else %}Увійти{% endif %}</button>
+</form>
+<div class="auth-links"><a href="/forgot-password">{% if lang=="ru" %}Забыли пароль?{% else %}Забули пароль?{% endif %}</a>
+<a href="/register">{% if lang=="ru" %}Создать аккаунт{% else %}Створити акаунт{% endif %}</a></div>
+<div class="demo-note">Demo: demo@odna-druga.local / demo1234</div>
+</section></div>{% endblock %}

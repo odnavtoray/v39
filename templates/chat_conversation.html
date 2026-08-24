@@ -1,0 +1,84 @@
+{% extends "base.html" %}{% block content %}
+<div class="formpage"><section class="formcard chat-page">
+<div class="chat-head">
+<a class="outline small" href="/messages">← {% if lang=="ru" %}Сообщения{% else %}Повідомлення{% endif %}</a>
+
+<a class="chat-partner-link" href="/user/{{partner.id}}" aria-label="{% if lang=='ru' %}Открыть профиль пользователя{% else %}Відкрити профіль користувача{% endif %}">
+  {% if partner.avatar %}
+    <span class="chat-partner-avatar avatar-photo" data-avatar-preview style="{{avatar_style(partner)}}"><img src="{{partner.avatar}}" alt=""></span>
+  {% else %}
+    <span class="chat-partner-avatar">{{(partner.name or "?")[0]|upper}}</span>
+  {% endif %}
+  <div>
+    <h1>{{partner.name}}</h1>
+    <span class="chat-profile-hint">{% if lang=="ru" %}Открыть профиль{% else %}Відкрити профіль{% endif %}</span>
+  </div>
+</a>
+
+<a href="/listing/{{listing.id}}" class="chat-listing-link">{{listing.title}}</a>
+</div>
+<div class="chat conversation-chat">
+{% for m in msgs %}{% set parts=message_parts(m.text) %}
+<div class="bubble {% if me and m.sender_id==me.id %}mine{% endif %}">
+{% if parts.image %}<a href="{{parts.image}}" target="_blank"><img class="chat-bubble-image" src="{{parts.image}}"></a>{% else %}{{parts.text}}{% endif %}
+</div>
+{% else %}<p class="muted">{% if lang=="ru" %}Сообщений пока нет.{% else %}Повідомлень поки немає.{% endif %}</p>{% endfor %}
+</div>
+<form method="post" action="/chat/{{listing.id}}/{{partner.id}}/send" class="messagebox chat-send-form" enctype="multipart/form-data">
+<textarea name="text" rows="3" placeholder="{% if lang=='ru' %}Написать сообщение...{% else %}Написати повідомлення...{% endif %}"></textarea>
+
+<div class="chat-attachment-preview" id="chatAttachmentPreview" hidden>
+  <img id="chatAttachmentImage" alt="">
+  <div class="chat-attachment-meta">
+    <b id="chatAttachmentName"></b>
+    <small>{% if lang=="ru" %}Фото будет отправлено вместе с сообщением{% else %}Фото буде надіслано разом із повідомленням{% endif %}</small>
+  </div>
+  <button type="button" class="chat-attachment-remove" id="chatAttachmentRemove" aria-label="{% if lang=='ru' %}Убрать фото{% else %}Прибрати фото{% endif %}">×</button>
+</div>
+
+<div class="chat-compose-tools">
+<label class="chat-tool" for="chatImageInput">📎 <span>{% if lang=="ru" %}Фото{% else %}Фото{% endif %}</span></label>
+<input id="chatImageInput" type="file" name="chat_image" accept="image/*" hidden>
+
+<label class="chat-tool" for="chatCameraInput">📷 <span>{% if lang=="ru" %}Камера{% else %}Камера{% endif %}</span></label>
+<input id="chatCameraInput" type="file" name="chat_image_camera" accept="image/*" capture="environment" hidden>
+
+<button class="primary">{% if lang=="ru" %}Отправить{% else %}Надіслати{% endif %}</button>
+</div>
+</form>
+
+<script>
+(function(){
+  const gallery = document.getElementById('chatImageInput');
+  const camera = document.getElementById('chatCameraInput');
+  const preview = document.getElementById('chatAttachmentPreview');
+  const image = document.getElementById('chatAttachmentImage');
+  const name = document.getElementById('chatAttachmentName');
+  const remove = document.getElementById('chatAttachmentRemove');
+  let objectUrl = null;
+
+  function clearPreview(clearInputs=true){
+    if(objectUrl){ URL.revokeObjectURL(objectUrl); objectUrl=null; }
+    image.removeAttribute('src');
+    name.textContent='';
+    preview.hidden=true;
+    if(clearInputs){ gallery.value=''; camera.value=''; }
+  }
+
+  function showFile(input, otherInput){
+    const file = input.files && input.files[0];
+    if(!file){ return; }
+    otherInput.value='';
+    if(objectUrl){ URL.revokeObjectURL(objectUrl); }
+    objectUrl = URL.createObjectURL(file);
+    image.src = objectUrl;
+    name.textContent = file.name || '{% if lang=="ru" %}Фото с камеры{% else %}Фото з камери{% endif %}';
+    preview.hidden=false;
+  }
+
+  gallery.addEventListener('change', function(){ showFile(gallery, camera); });
+  camera.addEventListener('change', function(){ showFile(camera, gallery); });
+  remove.addEventListener('click', function(){ clearPreview(true); });
+})();
+</script>
+</section></div>{% endblock %}

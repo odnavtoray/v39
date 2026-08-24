@@ -1,0 +1,27 @@
+{% extends "base.html" %}{% block content %}
+<div class="formpage">
+  <section class="formcard feedback-card">
+    <div class="feedback-head">
+      <div class="feedback-icon">💡</div>
+      <div>
+        <h1>{% if lang=='ru' %}Предложить идею{% else %}Запропонувати ідею{% endif %}</h1>
+        <p class="muted">{% if lang=='ru' %}Чего вам не хватает на «Одна Друга»? Ваши пожелания помогут сделать сайт удобнее.{% else %}Чого вам не вистачає на «Одна Друга»? Ваші побажання допоможуть нам зробити сайт зручнішим.{% endif %}</p>
+      </div>
+    </div>
+    <form method="post" class="feedback-form">
+      <label>{% if lang=='ru' %}Тип сообщения{% else %}Тип повідомлення{% endif %}
+        <select name="category">
+          <option value="idea">{% if lang=='ru' %}Новая функция{% else %}Нова функція{% endif %}</option>
+          <option value="ux">{% if lang=='ru' %}Что-то неудобно{% else %}Щось незручно{% endif %}</option>
+          <option value="bug">{% if lang=='ru' %}Нашёл ошибку{% else %}Знайшов помилку{% endif %}</option>
+          <option value="other">{% if lang=='ru' %}Другое{% else %}Інше{% endif %}</option>
+        </select>
+      </label>
+      <label>{% if lang=='ru' %}Ваше пожелание{% else %}Ваше побажання{% endif %}
+        <textarea name="text" rows="8" placeholder="{% if lang=='ru' %}Напишите, что вы хотели бы добавить или изменить...{% else %}Напишіть, що ви хотіли б додати або змінити...{% endif %}" required></textarea>
+      </label>
+      <button class="primary feedback-submit">{% if lang=='ru' %}Отправить предложение{% else %}Надіслати пропозицію{% endif %}</button>
+    </form>
+  </section>
+</div>
+{% endblock %}

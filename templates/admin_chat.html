@@ -1,0 +1,4 @@
+{% extends "base.html" %}{% block content %}
+<div class="formpage"><section class="formcard"><h1>{% if lang=="ru" %}Проверка чата{% else %}Перевірка чату{% endif %}</h1><p><a href="/listing/{{listing.id}}">{{listing.title}}</a></p>
+<div class="chat admin-chat">{% for m in msgs %}{% set parts=message_parts(m.text) %}<div class="bubble"><small>User #{{m.sender_id}}</small>{% if parts.image %}<a href="{{parts.image}}" target="_blank"><img class="chat-bubble-image" src="{{parts.image}}"></a>{% else %}<div>{{parts.text}}</div>{% endif %}</div>{% else %}<p class="muted">—</p>{% endfor %}</div>
+</section></div>{% endblock %}

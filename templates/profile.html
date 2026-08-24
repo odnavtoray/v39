@@ -1,0 +1,117 @@
+{% extends "base.html" %}{% block content %}
+<section class="formcard profile-avatar-editor">
+  <div class="profile-avatar-row">
+    {% if me.avatar %}
+      <span class="profile-avatar-img avatar-photo" data-avatar-preview data-avatar-original="{{me.avatar_original or me.avatar}}" style="{{avatar_style(me)}}"><img src="{{me.avatar}}" alt=""></span>
+    {% else %}
+      <div class="profile-avatar-fallback">{{(me.name or "?")[0]|upper}}</div>
+    {% endif %}
+    <div class="profile-avatar-actions">
+      <div class="profile-name-line"><h2>{{me.name}}</h2><button class="outline small" type="button" id="editNameBtn">{% if lang=="ru" %}Изменить{% else %}Змінити{% endif %}</button></div>
+      <form method="post" action="/profile/name" class="profile-name-edit" id="profileNameEdit" hidden>
+        <input name="name" value="{{me.name}}" minlength="1" maxlength="10" required>
+        <button class="primary small">{% if lang=="ru" %}Сохранить{% else %}Зберегти{% endif %}</button>
+        <button class="outline small" type="button" id="cancelNameEdit">{% if lang=="ru" %}Отмена{% else %}Скасувати{% endif %}</button>
+      </form>
+      <p class="muted">{% if lang=="ru" %}Фото профиля необязательно. Его можно подогнать внутри круга.{% else %}Фото профілю необов’язкове. Його можна підлаштувати всередині кола.{% endif %}</p>
+      <label class="outline avatar-file-label">
+        {% if me.avatar %}{% if lang=="ru" %}Выбрать другое фото{% else %}Обрати інше фото{% endif %}{% else %}{% if lang=="ru" %}Добавить фото{% else %}Додати фото{% endif %}{% endif %}
+        <input type="file" id="avatarFileInput" accept="image/*" hidden>
+      </label>
+      {% if me.avatar %}
+      <button class="outline" type="button" id="adjustAvatarBtn">{% if lang=="ru" %}Настроить кадр{% else %}Налаштувати кадр{% endif %}</button>
+      <form method="post" action="/profile/avatar/delete" class="inline-form"><button class="text-danger small" type="submit">{% if lang=="ru" %}Удалить фото{% else %}Видалити фото{% endif %}</button></form>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="avatar-crop-modal" id="avatarCropModal" hidden>
+    <div class="avatar-crop-card">
+      <button type="button" class="avatar-crop-close" id="avatarCropClose">×</button>
+      <h3>{% if lang=="ru" %}Настройте аватар{% else %}Налаштуйте аватар{% endif %}</h3>
+      <p class="muted">{% if lang=="ru" %}Двигайте фото мышкой или пальцем. Ползунком можно увеличить или уменьшить.{% else %}Рухайте фото мишкою або пальцем. Повзунком можна збільшити або зменшити.{% endif %}</p>
+      <div class="avatar-crop-viewport" id="avatarCropViewport">
+        <img id="avatarCropImage" alt="">
+        <div class="avatar-crop-mask"></div>
+      </div>
+      <label class="avatar-zoom-label">{% if lang=="ru" %}Масштаб{% else %}Масштаб{% endif %}
+        <input id="avatarZoomRange" type="range" min="1" max="3" step="0.01" value="{{me.avatar_zoom or 1}}">
+      </label>
+
+      <form method="post" action="/profile/avatar" enctype="multipart/form-data" id="avatarUploadForm">
+        <input type="file" name="avatar" id="avatarSubmitFile" accept="image/*" hidden>
+        <input type="hidden" name="avatar_x" id="avatarXNew" value="50">
+        <input type="hidden" name="avatar_y" id="avatarYNew" value="50">
+        <input type="hidden" name="avatar_zoom" id="avatarZoomNew" value="1">
+        <button class="primary" type="submit" id="saveNewAvatar">{% if lang=="ru" %}Сохранить фото{% else %}Зберегти фото{% endif %}</button>
+      </form>
+
+      {% if me.avatar %}
+      <form method="post" action="/profile/avatar/settings" id="avatarSettingsForm">
+        <input type="hidden" name="avatar_x" id="avatarXExisting" value="{{me.avatar_x or 50}}">
+        <input type="hidden" name="avatar_y" id="avatarYExisting" value="{{me.avatar_y or 50}}">
+        <input type="hidden" name="avatar_zoom" id="avatarZoomExisting" value="{{me.avatar_zoom or 1}}">
+        <button class="primary" type="submit" id="saveExistingAvatar">{% if lang=="ru" %}Сохранить кадр{% else %}Зберегти кадр{% endif %}</button>
+      </form>
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+<div class="profile-page">
+<section class="formcard profile-main">
+  <div class="profile-head large">{% if me.avatar %}<span class="avatar avatar-photo" data-avatar-preview style="{{avatar_style(me)}}"><img src="{{me.avatar}}" alt=""></span>{% else %}<span class="avatar">{{(me.name or "?")[0]|upper}}</span>{% endif %}<div><h1>{{me.name}}</h1><p>{% if me.phone and not me.phone.startswith("email:") %}☎ {{me.phone}}{% else %}{% if lang=='ru' %}Телефон не добавлен{% else %}Телефон не додано{% endif %}{% endif %}</p></div></div>
+  <div class="trust wide-trust"><small>{% if lang=='ru' %}Рейтинг доверия{% else %}Рейтинг довіри{% endif %}</small><strong>★ {{rating_avg}}</strong><a href="/user/{{me.id}}">{{reviews|length}} {% if lang=='ru' %}отзывов{% else %}відгуків{% endif %}</a></div>
+</section>
+
+<section class="formcard profile-phone-card">
+  <h2>{% if lang=="ru" %}Телефон для объявлений{% else %}Телефон для оголошень{% endif %}</h2>
+  <p class="muted">{% if lang=="ru" %}Номер добавляется по желанию. Его смогут видеть авторизованные пользователи, если включён показ номера.{% else %}Номер додається за бажанням. Його зможуть бачити авторизовані користувачі, якщо увімкнено показ номера.{% endif %}</p>
+  <form method="post" action="/profile/phone" class="profile-phone-form">
+    <label>{% if lang=="ru" %}Номер телефона{% else %}Номер телефону{% endif %}
+      <input name="phone" type="tel" inputmode="tel" autocomplete="tel" enterkeyhint="done" autocapitalize="off" spellcheck="false" placeholder="+380..." value="{% if me.phone and not me.phone.startswith('email:') %}{{me.phone}}{% endif %}">
+    </label>
+    <label class="phone-visibility-row">
+      <input type="checkbox" name="show_phone" {% if me.show_phone and me.phone and not me.phone.startswith('email:') %}checked{% endif %}>
+      <span>{% if lang=="ru" %}Показывать мой номер в объявлениях авторизованным пользователям{% else %}Показувати мій номер в оголошеннях авторизованим користувачам{% endif %}</span>
+    </label>
+    <div class="profile-phone-actions">
+      <button class="primary" type="submit">{% if lang=="ru" %}Сохранить телефон{% else %}Зберегти телефон{% endif %}</button>
+      {% if me.phone and not me.phone.startswith("email:") %}<span class="muted">{% if me.show_phone %}{% if lang=="ru" %}Номер сейчас виден в объявлениях{% else %}Номер зараз видно в оголошеннях{% endif %}{% else %}{% if lang=="ru" %}Номер скрыт от других пользователей{% else %}Номер приховано від інших користувачів{% endif %}{% endif %}</span>{% endif %}
+    </div>
+  </form>
+</section>
+
+<section class="formcard"><h2>{% if lang=='ru' %}Активные объявления{% else %}Активні оголошення{% endif %}</h2>
+<div class="mini-list">{% for l,st in active_mine %}
+<div class="mini listing-mini"><a class="mini-image-link" href="/listing/{{l.id}}"><img src="{{l.images[0]}}"></a><div><a href="/listing/{{l.id}}"><b>{{l.title}}</b></a>
+<small>{% if st.status=="reserved" %}<span class="profile-reserved">🔖 {% if lang=="ru" %}Забронировано{% else %}Заброньовано{% endif %}</span> · {% endif %}{% if lang=="ru" %}Активно до{% else %}Активне до{% endif %}: {{st.expires_at.strftime("%d.%m.%Y") if st.expires_at else "—"}}{% if days_left(st)<=3 %} · <span class="expiry-warning">{% if lang=="ru" %}скоро истечёт{% else %}скоро завершиться{% endif %}</span>{% endif %}</small>
+<div class="seller-favorite-count">♥ {{favorite_count(l.id)}} {% if lang=="ru" %}в избранном{% else %}в обраному{% endif %}</div></div>
+<div class="mini-actions"><a class="editmini" href="/listing/{{l.id}}/edit">{% if lang=='ru' %}Редактировать{% else %}Редагувати{% endif %}</a>
+<form method="post" action="/listing/{{l.id}}/reserve"><button class="outline small">{% if st.status=="reserved" %}{% if lang=="ru" %}Отменить бронь{% else %}Скасувати бронь{% endif %}{% else %}{% if lang=="ru" %}Забронировать{% else %}Забронювати{% endif %}{% endif %}</button></form><form method="post" action="/listing/{{l.id}}/renew"><button class="outline small">{% if lang=="ru" %}+30 дней{% else %}+30 днів{% endif %}</button></form></div></div>
+{% else %}<p class="muted">{% if lang=='ru' %}Пока нет активных объявлений.{% else %}Поки немає активних оголошень.{% endif %}</p>{% endfor %}</div></section>
+
+<section class="formcard"><h2>{% if lang=='ru' %}Неактивные{% else %}Неактивні{% endif %}</h2>
+<div class="mini-list">{% for l,st in inactive_mine %}
+<div class="mini listing-mini inactive-mini"><img src="{{l.images[0]}}"><div><a href="/listing/{{l.id}}"><b>{{l.title}}</b></a>
+<small>{% if st.status=="sold" %}{% if lang=="ru" %}Продано{% else %}Продано{% endif %}
+{% elif st.status=="given" %}{% if lang=="ru" %}Отдано{% else %}Віддано{% endif %}
+{% elif st.status=="exchanged" %}{% if lang=="ru" %}Обменяно{% else %}Обміняно{% endif %}
+{% else %}{% if lang=="ru" %}Неактивно{% else %}Неактивне{% endif %}{% endif %}</small></div>
+<div class="mini-actions"><form method="post" action="/listing/{{l.id}}/reactivate"><button class="outline small">{% if lang=="ru" %}Активировать снова{% else %}Активувати знову{% endif %}</button></form>
+<form method="post" action="/listing/{{l.id}}/delete" onsubmit="return confirm(document.documentElement.lang==='ru'?'Удалить объявление навсегда?':'Видалити оголошення назавжди?')"><button class="danger small">{% if lang=="ru" %}Удалить навсегда{% else %}Видалити назавжди{% endif %}</button></form></div></div>
+{% else %}<p class="muted">{% if lang=='ru' %}Здесь будут завершённые и просроченные объявления.{% else %}Тут будуть завершені та прострочені оголошення.{% endif %}</p>{% endfor %}</div></section>
+
+<section class="formcard"><h2>{% if lang=='ru' %}Избранное{% else %}Обране{% endif %}</h2><div class="mini-list">{% for l in fav_listings %}<div class="mini"><img src="{{l.images[0]}}"><a href="/listing/{{l.id}}">{{l.title}}</a></div>{% else %}<p class="muted">{% if lang=='ru' %}Ничего не добавлено.{% else %}Нічого не додано.{% endif %}</p>{% endfor %}</div></section>
+<section class="formcard"><h2>{% if lang=="ru" %}Активность{% else %}Активність{% endif %}</h2><div class="settings-actions"><a class="outline" href="/notifications">🔔 {% if lang=="ru" %}Уведомления{% else %}Сповіщення{% endif %}{% if notification_count %} · {{notification_count}}{% endif %}</a><a class="outline" href="/exchange-offers">↔ {% if lang=="ru" %}Предложения обмена{% else %}Пропозиції обміну{% endif %}</a><a class="outline" href="/wanted">🔎 {% if lang=="ru" %}Сохранённые поиски{% else %}Збережені пошуки{% endif %}</a></div></section>
+<section class="formcard" id="chats"><h2>{% if lang=='ru' %}Сообщения{% else %}Повідомлення{% endif %}</h2><p><a class="outline" href="/messages">{% if lang=='ru' %}Открыть все сообщения{% else %}Відкрити всі повідомлення{% endif %}{% if unread_count %} · {{unread_count}} {% if lang=='ru' %}новых{% else %}нових{% endif %}{% endif %}</a></p></section>
+<section class="formcard settings-card"><h2>{% if lang=='ru' %}Настройки{% else %}Налаштування{% endif %}</h2>
+<div class="settings-actions">
+<a class="outline" href="/settings">{% if lang=='ru' %}Звук сообщений и другие настройки{% else %}Звук повідомлень та інші налаштування{% endif %}</a>
+{% if admin_user(me) %}
+<a class="outline admin-stat-link" href="/admin/stats">📊 {% if lang=='ru' %}Статистика сайта{% else %}Статистика сайту{% endif %}</a>
+<a class="outline" href="/admin/moderation">🛡 {% if lang=="ru" %}Модерация жалоб{% else %}Модерація скарг{% endif %}</a>
+{% endif %}
+<a class="logout-link" href="/logout">{% if lang=="ru" %}Выйти из аккаунта{% else %}Вийти з акаунта{% endif %}</a>
+</div></section>
+</div>{% endblock %}

@@ -1,0 +1,4 @@
+{% extends "base.html" %}{% block content %}
+<div class="formpage"><section class="formcard"><h1>{% if lang=="ru" %}Уведомления{% else %}Сповіщення{% endif %}</h1>
+<div class="notification-list">{% for n in items %}<a class="notification-item" href="{{n.url or '#'}}"><span>{% if n.kind=="message" %}💬{% elif n.kind=="review" %}★{% elif n.kind=="exchange" %}↔{% elif n.kind=="favorite" %}♥{% else %}🔔{% endif %}</span><div><b>{{n.text}}</b><small>{{n.created_at.strftime("%d.%m.%Y %H:%M")}}</small></div></a>{% else %}<p class="muted">{% if lang=="ru" %}Уведомлений пока нет.{% else %}Сповіщень поки немає.{% endif %}</p>{% endfor %}</div>
+</section></div>{% endblock %}

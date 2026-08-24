@@ -1,0 +1,62 @@
+{% extends "base.html" %}{% block content %}
+<div class="stats-page">
+  <div class="stats-head">
+    <div>
+      <h1>{% if lang=="ru" %}Статистика сайта{% else %}Статистика сайту{% endif %}</h1>
+      <p class="muted">{% if lang=="ru" %}Закрытая панель администратора{% else %}Закрита панель адміністратора{% endif %}</p>
+    </div>
+    <div class="period-switch">
+      <a class="{{'active' if period=='today' else ''}}" href="/admin/stats?period=today">{% if lang=="ru" %}Сегодня{% else %}Сьогодні{% endif %}</a>
+      <a class="{{'active' if period=='7' else ''}}" href="/admin/stats?period=7">7 {% if lang=="ru" %}дней{% else %}днів{% endif %}</a>
+      <a class="{{'active' if period=='30' else ''}}" href="/admin/stats?period=30">30 {% if lang=="ru" %}дней{% else %}днів{% endif %}</a>
+      <a class="{{'active' if period=='all' else ''}}" href="/admin/stats?period=all">{% if lang=="ru" %}Всё время{% else %}Увесь час{% endif %}</a>
+    </div>
+  </div>
+
+  <div class="stat-cards stat-cards-main">
+    <div><b>{{unique_visitors}}</b><span>{% if lang=="ru" %}уникальных посетителей{% else %}унікальних відвідувачів{% endif %}</span></div>
+    <div><b>{{guest_visitors}}</b><span>{% if lang=="ru" %}гостей без регистрации{% else %}гостей без реєстрації{% endif %}</span></div>
+    <div><b>{{users}}</b><span>{% if lang=="ru" %}зарегистрировано всего{% else %}зареєстровано всього{% endif %}</span></div>
+    <div><b>{{listing_views}}</b><span>{% if lang=="ru" %}просмотров объявлений{% else %}переглядів оголошень{% endif %}</span></div>
+    <div><b>{{active_count}}</b><span>{% if lang=="ru" %}активных объявлений{% else %}активних оголошень{% endif %}</span></div>
+    <div><b>{{completed_count}}</b><span>{% if lang=="ru" %}завершённых сделок{% else %}завершених угод{% endif %}</span></div>
+    <div><b>{{searches_count}}</b><span>{% if lang=="ru" %}поисков{% else %}пошуків{% endif %}</span></div>
+    <div><b>{{messages_count}}</b><span>{% if lang=="ru" %}сообщений в чатах{% else %}повідомлень у чатах{% endif %}</span></div>
+    <div><b>{{conversion}}%</b><span>{% if lang=="ru" %}конверсия гостей в регистрацию{% else %}конверсія гостей у реєстрацію{% endif %}</span></div>
+  </div>
+
+  <div class="stats-kpis">
+    <div><span>{% if lang=="ru" %}Объявлений с сообщениями{% else %}Оголошень із повідомленнями{% endif %}</span><b>{{engaged_listings}}</b></div>
+    <div><span>{% if lang=="ru" %}Доля завершённых сделок{% else %}Частка завершених угод{% endif %}</span><b>{{deal_rate}}%</b></div>
+    <div><span>{% if lang=="ru" %}Добавлений в избранное{% else %}Додавань в обране{% endif %}</span><b>{{favorites_count}}</b></div>
+    <div><span>{% if lang=="ru" %}Средний рейтинг{% else %}Середній рейтинг{% endif %}</span><b>★ {{avg_stars}}</b></div>
+  </div>
+
+  <div class="stats-grid">
+    <section class="formcard"><h2>{% if lang=="ru" %}Что чаще ищут{% else %}Що найчастіше шукають{% endif %}</h2>
+      {% for name,n in top_terms %}<div class="stat-row"><span>{{name}}</span><b>{{n}}</b></div>{% else %}<p class="muted">—</p>{% endfor %}
+    </section>
+    <section class="formcard"><h2>{% if lang=="ru" %}Ищут, но не находят{% else %}Шукають, але не знаходять{% endif %}</h2>
+      {% for name,n in zero_terms %}<div class="stat-row"><span>{{name}}</span><b>{{n}}</b></div>{% else %}<p class="muted">—</p>{% endfor %}
+    </section>
+    <section class="formcard"><h2>{% if lang=="ru" %}Популярные размеры{% else %}Популярні розміри{% endif %}</h2>
+      {% for name,n in top_sizes %}<div class="stat-row"><span>{{name}}</span><b>{{n}}</b></div>{% else %}<p class="muted">—</p>{% endfor %}
+    </section>
+    <section class="formcard"><h2>{% if lang=="ru" %}Левая / правая{% else %}Ліва / права{% endif %}</h2>
+      {% for name,n in sides %}<div class="stat-row"><span>{{name}}</span><b>{{n}}</b></div>{% endfor %}
+    </section>
+    <section class="formcard"><h2>{% if lang=="ru" %}Самые активные города{% else %}Найактивніші міста{% endif %}</h2>
+      {% for name,n in top_cities %}<div class="stat-row"><span>{{name}}</span><b>{{n}}</b></div>{% else %}<p class="muted">—</p>{% endfor %}
+    </section>
+    <section class="formcard"><h2>{% if lang=="ru" %}Когда публикуют{% else %}Коли публікують{% endif %}</h2>
+      {% for h,n in hours %}<div class="stat-row"><span>{{"%02d"|format(h)}}:00</span><b>{{n}}</b></div>{% else %}<p class="muted">—</p>{% endfor %}
+    </section>
+    <section class="formcard moderation-stats">
+      <h2>{% if lang=="ru" %}Антиспам / модерация{% else %}Антиспам / модерація{% endif %}</h2>
+      <div class="stat-row"><span>{% if lang=="ru" %}Остановлено похожих фото{% else %}Зупинено схожих фото{% endif %}</span><b>{{duplicates}}</b></div>
+      <div class="stat-row"><span>{% if lang=="ru" %}Сработал лимит массовой публикации{% else %}Спрацював ліміт масової публікації{% endif %}</span><b>{{rate_limits}}</b></div>
+      <div class="stat-row"><span>{% if lang=="ru" %}Жалоб пользователей{% else %}Скарг користувачів{% endif %}</span><b>{{complaints_count}}</b></div>
+    </section>
+  </div>
+</div>
+{% endblock %}

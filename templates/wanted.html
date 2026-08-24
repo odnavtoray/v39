@@ -1,0 +1,42 @@
+{% extends "base.html" %}{% block content %}
+<div class="wanted-page">
+<section class="formcard wanted-create">
+  <div><h1>{% if lang=='ru' %}Ищу конкретное{% else %}Шукаю конкретне{% endif %}</h1><p class="muted">{% if lang=='ru' %}Укажите параметры. Совпадения показываются обычными карточками объявлений.{% else %}Вкажіть параметри. Тут більше не буде «кодів» — збіги показуються звичайними картками оголошень.{% endif %}</p></div>
+  <form method="post" class="wanted-form">
+    <label class="wide">{% if lang=='ru' %}Бренд / модель{% else %}Бренд / модель{% endif %}<input name="query" placeholder="Наприклад: Nike Air Max" required></label>
+    <label>{% if lang=='ru' %}Какая нога?{% else %}Яка нога?{% endif %}<select name="side"><option value="left">{% if lang=='ru' %}Левая{% else %}Ліва{% endif %}</option><option value="right">{% if lang=='ru' %}Правая{% else %}Права{% endif %}</option></select></label>
+    <label>{% if lang=='ru' %}Размер{% else %}Розмір{% endif %}<input name="size" placeholder="43"></label>
+    <label>{% if lang=='ru' %}Максимальная цена{% else %}Максимальна ціна{% endif %}<input name="max_price" type="number" min="0" placeholder="3000"></label>
+    <label>{% if lang=='ru' %}Тип обуви{% else %}Тип взуття{% endif %}<select name="footwear_type"><option value="">{% if lang=='ru' %}Любой{% else %}Будь-який{% endif %}</option><option value="sneakers">{% if lang=='ru' %}Кроссовки{% else %}Кросівки{% endif %}</option><option value="shoes">{% if lang=='ru' %}Туфли{% else %}Туфлі{% endif %}</option><option value="boots">{% if lang=='ru' %}Ботинки{% else %}Черевики{% endif %}</option><option value="sandals">{% if lang=='ru' %}Сандалии{% else %}Сандалі{% endif %}</option><option value="other">{% if lang=='ru' %}Другое{% else %}Інше{% endif %}</option></select></label>
+    <label class="notify"><input type="checkbox" name="notify" checked> {% if lang=='ru' %}Сообщить, когда появится{% else %}Повідомити, коли з’явиться{% endif %}</label>
+    <button class="greenbtn">{% if lang=='ru' %}Сохранить поиск{% else %}Зберегти пошук{% endif %}</button>
+  </form>
+</section>
+
+<section class="formcard">
+  <h2>{% if lang=='ru' %}Мои поиски{% else %}Мої пошуки{% endif %}</h2>
+  <div class="saved-searches">
+  {% for w in items %}
+    <div class="saved">
+      <div><b>{{w.search_text}}</b><span>{% if lang=="ru" %}{{"левая" if w.side=="left" else "правая"}} · размер{% else %}{{"ліва" if w.side=="left" else "права"}} · розмір{% endif %} {{w.size or "будь-який"}}{% if w.max_price %} · до {{w.max_price}} грн{% endif %}</span></div>
+      <form method="post" action="/wanted/{{w.id}}/delete"><button class="trash">×</button></form>
+    </div>
+  {% else %}<p class="muted">{% if lang=='ru' %}Пока нет сохранённых поисков.{% else %}Поки немає збережених пошуків.{% endif %}</p>{% endfor %}
+  </div>
+</section>
+
+<section class="formcard">
+  <h2>✨ {% if lang=='ru' %}Есть пара для вас{% else %}Є пара для вас{% endif %}</h2><p class="muted">{% if lang=='ru' %}Сайт автоматически сравнивает ваши сохранённые поиски с объявлениями.{% else %}Сайт автоматично порівнює ваші збережені пошуки з оголошеннями.{% endif %}</p>
+  {% if matches %}
+  <div class="matches-grid">
+  {% for m in matches %}
+    <a class="match-card" href="/listing/{{m.listing.id}}">
+      <img src="{{m.listing.images[0]}}">
+      <div><span class="match-score">Збіг {{m.score}}%</span><b>{{m.listing.title}}</b><small>{{m.listing.city}} · {{m.listing.size}} · {{"ліва" if m.listing.side=="left" else "права"}}</small><strong>{% if lang=="ru" %}{{"Бесплатно" if m.listing.price==0 else m.listing.price|string+" грн"}}{% else %}{{"Безкоштовно" if m.listing.price==0 else m.listing.price|string+" грн"}}{% endif %}</strong></div>
+    </a>
+  {% endfor %}
+  </div>
+  {% else %}<div class="empty-match">{% if lang=='ru' %}Пока нет достаточно точных совпадений. Запрос сохранён — новые объявления можно проверять автоматически.{% else %}Поки немає достатньо точних збігів. Запит збережено — нові оголошення можна буде перевіряти автоматично.{% endif %}</div>{% endif %}
+</section>
+</div>
+{% endblock %}

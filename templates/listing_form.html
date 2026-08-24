@@ -1,0 +1,97 @@
+{% extends "base.html" %}{% block content %}
+<div class="formpage">
+<section class="formcard">
+  <div class="form-title"><div><h1>{{ ("Редактировать объявление" if listing else "Добавить объявление") if lang=="ru" else ("Редагувати оголошення" if listing else "Додати оголошення") }}</h1><p>{% if lang=="ru" %}Категория: <b>Обувь</b>{% else %}Категорія: <b>Взуття</b>{% endif %}</p></div>{% if listing %}<a class="outline" href="/listing/{{listing.id}}">{% if lang=="ru" %}Назад{% else %}Назад{% endif %}</a>{% endif %}</div>
+  <div class="required-note">{% if lang=="ru" %}Поля со знаком <b>*</b> обязательны. Описание — от 20 до 500 символов, фото — от 1 до 5.{% else %}Поля з позначкою <b>*</b> обов’язкові. {% if lang=="ru" %}Описание{% else %}Опис{% endif %} — від 20 до 500 символів, фото — від 1 до 5.{% endif %}</div><div class="anti-duplicate-note">🛡 {% if lang=="ru" %}Сайт проверяет повторяющиеся фотографии и массовые дубли, чтобы объявления не засоряли ленту.{% else %}Сайт перевіряє повторювані фотографії та масові дублікати, щоб оголошення не засмічували стрічку.{% endif %}</div><form method="post" enctype="multipart/form-data" id="listingForm">
+    {% if listing and listing.images %}
+    <div class="field">
+      <label>{% if lang=="ru" %}Текущие фотографии{% else %}Поточні фотографії{% endif %}</label>
+      <div class="existing-photos" id="existingPhotos">
+        {% for img in listing.images %}
+        <div class="existing-photo {% if loop.first %}selected{% endif %}" data-existing-index="{{loop.index0}}">
+          <img src="{{img}}" class="existing-img">
+          <input type="hidden" name="keep_image" value="{{loop.index0}}"><input type="hidden" class="rotation-existing" name="rotation_existing_{{loop.index0}}" value="0">
+          <div class="existing-tools">
+            <button type="button" class="rotate-existing-left" title="Повернути">↺</button>
+            <button type="button" class="rotate-existing-right" title="Повернути">↻</button>
+            <button type="button" class="delete-existing" title="Видалити">×</button>
+          </div>
+
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
+    <div class="field">
+      <label>{% if lang=="ru" %}Добавить фотографии — до 5{% else %}Додати фотографії — до 5{% endif %} <span class="req">*</span></label>
+      <input type="file" name="images" id="photoInput" accept="image/*" multiple>
+      <p class="hint">{% if lang=="ru" %}<b>Фото №1 — главное.</b> Нажмите на миниатюру, чтобы показать её в большом окне. Нажатие не меняет порядок. Чтобы сделать другое фото главным, перетащите его на место №1. ↺/↻ поворачивают, × удаляет.{% else %}<b>Фото №1 — головне.</b> Натисніть на мініатюру, щоб показати її у великому вікні. Натискання не змінює порядок. Щоб зробити інше фото головним, перетягніть його на місце №1. ↺/↻ повертають, × видаляє.{% endif %}</p>
+      <div class="photo-editor">
+        <div class="photo-stage"><div id="emptyStage">{% if lang=="ru" %}Фото ещё не выбрано{% else %}Фото ще не вибране{% endif %}</div><img id="stageImage" hidden></div>
+        <div class="main-photo-tools" id="mainPhotoTools" hidden>
+          <button type="button" id="mainRotateLeft">↺ <span>{% if lang=="ru" %}Повернуть влево{% else %}Повернути вліво{% endif %}</span></button>
+          <button type="button" id="mainRotateRight">↻ <span>{% if lang=="ru" %}Повернуть вправо{% else %}Повернути вправо{% endif %}</span></button>
+          <button type="button" id="mainDeletePhoto" class="photo-delete">🗑 <span>{% if lang=="ru" %}Удалить фото{% else %}Видалити фото{% endif %}</span></button>
+        </div>
+        <div id="photoStrip" class="photo-strip"></div>
+      </div>
+    </div>
+
+    <div class="fields">
+      <label class="wide">{% if lang=="ru" %}Название объявления{% else %}Назва оголошення{% endif %} <span class="req">*</span><input name="title" value="{{listing.title if listing else ''}}" placeholder="Наприклад: Nike Air Max 270, права" required></label>
+      <label>{% if lang=="ru" %}Бренд{% else %}Бренд{% endif %} <span class="req">*</span><input name="brand" value="{{listing.brand if listing else ''}}" placeholder="Nike" required></label>
+      <label>{% if lang=="ru" %}Модель{% else %}Модель{% endif %} <span class="req">*</span><input name="model" value="{{listing.model if listing else ''}}" placeholder="Air Max 270" required></label>
+      <label>{% if lang=="ru" %}Размер{% else %}Розмір{% endif %} <span class="req">*</span><input name="size" value="{{listing.size if listing else ''}}" placeholder="43" required></label>
+      <label>{% if lang=="ru" %}Какая нога?{% else %}Яка нога?{% endif %} <span class="req">*</span><select name="side"><option value="left" {% if listing and listing.side=="left" %}selected{% endif %}>{% if lang=="ru" %}Левая{% else %}Ліва{% endif %}</option><option value="right" {% if listing and listing.side=="right" %}selected{% endif %}>{% if lang=="ru" %}Правая{% else %}Права{% endif %}</option></select></label>
+      <label>{% if lang=="ru" %}Для кого{% else %}Для кого{% endif %}<select name="gender"><option value="unisex" {% if listing and listing.gender=="unisex" %}selected{% endif %}>{% if lang=="ru" %}Унисекс{% else %}Унісекс{% endif %}</option><option value="men" {% if listing and listing.gender=="men" %}selected{% endif %}>{% if lang=="ru" %}Мужская{% else %}Чоловіча{% endif %}</option><option value="women" {% if listing and listing.gender=="women" %}selected{% endif %}>{% if lang=="ru" %}Женская{% else %}Жіноча{% endif %}</option></select></label>
+      <label>{% if lang=="ru" %}Длина стельки, см{% else %}Довжина устілки, см{% endif %}<input name="insole_length" value="{{listing.insole_length if listing else ''}}" placeholder="27.5" inputmode="decimal"></label>
+      <label>{% if lang=="ru" %}Тип обуви{% else %}Тип взуття{% endif %}<select name="footwear_type"><option value="">—</option>{% for v,uk,ru in [('sneakers','Кросівки','Кроссовки'),('shoes','Туфлі','Туфли'),('boots','Черевики','Ботинки'),('sandals','Сандалі','Сандалии'),('slippers','Шльопанці','Шлёпанцы'),('moccasins','Мокасини','Мокасины'),('other','Інше','Другое')] %}<option value="{{v}}" {% if listing and listing.footwear_type==v %}selected{% endif %}>{{ru if lang=='ru' else uk}}</option>{% endfor %}</select></label>
+      <label>{% if lang=="ru" %}Состояние{% else %}Стан{% endif %} <span class="req">*</span><select name="condition">
+<option {% if listing and listing.condition in ["Нові","Новые"] %}selected{% endif %}>{% if lang=="ru" %}Новые{% else %}Нові{% endif %}</option>
+<option {% if listing and listing.condition in ["Відмінний стан","Отличное состояние","Відмінний","Як нові"] %}selected{% endif %}>{% if lang=="ru" %}Отличное состояние{% else %}Відмінний стан{% endif %}</option>
+<option {% if listing and listing.condition in ["Ношені","Ношеные","Добрий","Вживані"] %}selected{% endif %}>{% if lang=="ru" %}Ношеные{% else %}Ношені{% endif %}</option>
+</select></label>
+      <label>{% if lang=="ru" %}Что делаете?{% else %}Що робите?{% endif %} <span class="req">*</span><select name="kind"><option value="sale" {% if listing and listing.kind=="sale" %}selected{% endif %}>Продам</option><option value="exchange" {% if listing and listing.kind=="exchange" %}selected{% endif %}>{% if lang=="ru" %}Обменяю{% else %}Обміняю{% endif %}</option><option value="give" {% if listing and listing.kind=="give" %}selected{% endif %}>{% if lang=="ru" %}Отдам{% else %}Віддам{% endif %}</option></select></label>
+      <label class="price-field" id="priceField">{% if lang=="ru" %}Цена, грн{% else %}Ціна, грн{% endif %} <span class="req">*</span><input type="text" inputmode="numeric" pattern="[0-9]*" class="digits-only" name="price" value="{{listing.price if listing else ''}}" placeholder="0"></label>
+      <div class="wide exchange-options" id="exchangeOptions" hidden>
+        <h3>↔ {% if lang=='ru' %}На что хотите обменять?{% else %}На що хочете обміняти?{% endif %}</h3>
+        <div class="fields">
+          <label>{% if lang=='ru' %}Какая нога нужна{% else %}Яка нога потрібна{% endif %}
+            <select name="exchange_side"><option value="">—</option><option value="left" {% if listing and listing.exchange_side=='left' %}selected{% endif %}>{% if lang=='ru' %}Левая{% else %}Ліва{% endif %}</option><option value="right" {% if listing and listing.exchange_side=='right' %}selected{% endif %}>{% if lang=='ru' %}Правая{% else %}Права{% endif %}</option></select>
+          </label>
+          <label>{% if lang=='ru' %}На какой размер{% else %}На який розмір{% endif %}
+            <input name="exchange_size" value="{{listing.exchange_size if listing else ''}}" placeholder="41.5">
+          </label>
+          <label>{% if lang=='ru' %}На какую обувь{% else %}На яке взуття{% endif %}
+            <select name="exchange_type" id="exchangeType">
+              <option value="">—</option>
+              {% for v,uk,ru in [('sneakers','Кросівки','Кроссовки'),('shoes','Туфлі','Туфли'),('boots','Черевики','Ботинки'),('sandals','Сандалі','Сандалии'),('slippers','Шльопанці / сланці','Шлёпанцы / сланцы'),('moccasins','Мокасини','Мокасины'),('other','Інше','Другое')] %}
+              <option value="{{v}}" {% if listing and listing.exchange_type==v %}selected{% endif %}>{{ru if lang=='ru' else uk}}</option>
+              {% endfor %}
+            </select>
+          </label>
+          <label id="exchangeOtherField">{% if lang=='ru' %}Свой вариант{% else %}Свій варіант{% endif %}
+            <input name="exchange_other" value="{{listing.exchange_other if listing else ''}}" placeholder="{% if lang=='ru' %}Например, сабо{% else %}Наприклад, сабо{% endif %}">
+          </label>
+        </div>
+      </div>
+      <div class="wide delivery-options"><h3>{% if lang=='ru' %}Передача / доставка{% else %}Передача / доставка{% endif %}</h3>{% set ds=(listing.delivery.split(',') if listing and listing.delivery else []) %}
+        <label class="delivery-row"><input type="checkbox" name="delivery" value="meet" {% if 'meet' in ds %}checked{% endif %}><span>{% if lang=='ru' %}Личная встреча{% else %}Особиста зустріч{% endif %}</span></label>
+        <label class="delivery-row"><input type="checkbox" name="delivery" value="nova" {% if 'nova' in ds %}checked{% endif %}><span>Нова пошта</span></label>
+        <label class="delivery-row"><input type="checkbox" name="delivery" value="ukr" {% if 'ukr' in ds %}checked{% endif %}><span>Укрпошта</span></label>
+      </div>
+      <label class="city-field">{% if lang=="ru" %}Город{% else %}Місто{% endif %} <span class="req">*</span>
+        <span class="city-autocomplete-wrap">
+          <input id="listingCity" name="city" value="{{listing.city if listing else ''}}" placeholder="{% if lang=='ru' %}Начните вводить город{% else %}Почніть вводити місто{% endif %}" autocomplete="off" autocapitalize="words" required>
+          <button type="button" id="cityDropdownToggle" class="city-dropdown-toggle" aria-label="{% if lang=='ru' %}Показать города{% else %}Показати міста{% endif %}">⌄</button>
+          <span id="citySuggestions" class="city-suggestions" hidden></span>
+        </span>
+      </label>
+      <label class="wide">{% if lang=="ru" %}Описание{% else %}Опис{% endif %} <span class="req">*</span><textarea name="description" rows="6" placeholder="{% if lang=='ru' %}Состояние, особенности, как передать...{% else %}Стан, особливості, як передати...{% endif %}" minlength="20" maxlength="500" id="descriptionInput" required>{{listing.description if listing else ''}}</textarea><span id="descriptionCounter" class="description-counter">0 / 20 мін.</span></label>
+    </div>
+    <button class="publish is-not-ready" id="publishBtn" type="submit" aria-disabled="true">{{ ("Сохранить изменения" if listing else "Опубликовать объявление") if lang=="ru" else ("Зберегти зміни" if listing else "Опублікувати оголошення") }}</button>
+  </form>
+</section>
+</div>
+{% endblock %}
