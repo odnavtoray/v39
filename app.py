@@ -1965,4 +1965,4 @@ with app.app_context():
 if __name__ == "__main__":
     # Local development only. For Beta/Internet use: py serve_beta.py
     debug = os.environ.get("FLASK_DEBUG","0") == "1"
-    app.run(host="127.0.0.1", port=5000, debug=debug)
+    app.run(host="0.0.0.0", port=5000, debug=debug)
