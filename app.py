@@ -571,7 +571,7 @@ def inject():
         unread = sum(1 for m in Message.query.filter_by(recipient_id=me.id).all() if m.id not in read_ids)
         setting = UserSetting.query.filter_by(user_id=me.id).first()
         sound_enabled = setting.sound_enabled if setting else True
-    notification_count = Notification.query.filter_by(user_id=me.id, is_read=False).count() if me else 0
+   notification_count = Notification.query.filter_by(user_id=me.id, is_read=False).filter(Notification.kind != "message").count() if me else 0
     return {"me": me, "unread_count": unread, "sound_enabled": sound_enabled,
             "notification_count": notification_count,
             "lang": session.get("lang","uk"), "admin_user": admin_user,
