@@ -32,7 +32,7 @@
       <datalist id="cityList">{% for c in cities %}<option value="{{c}}">{% endfor %}</datalist>
       <select name="kind"><option value="all">{% if lang=="ru" %}Все объявления{% else %}Усі оголошення{% endif %}</option><option value="sale" {% if kind=="sale" %}selected{% endif %}>Продам</option><option value="exchange" {% if kind=="exchange" %}selected{% endif %}>{% if lang=="ru" %}Обменяю{% else %}Обміняю{% endif %}</option><option value="give" {% if kind=="give" %}selected{% endif %}>{% if lang=="ru" %}Отдам{% else %}Віддам{% endif %}</option></select>
       <select name="sort"><option value="new">{% if lang=="ru" %}Новые сначала{% else %}Нові спочатку{% endif %}</option><option value="cheap" {% if sort=="cheap" %}selected{% endif %}>{% if lang=="ru" %}Дешевле{% else %}Дешевші{% endif %}</option><option value="expensive" {% if sort=="expensive" %}selected{% endif %}>{% if lang=="ru" %}Дороже{% else %}Дорожчі{% endif %}</option></select>
-      <button class="filterbtn">{% if lang=="ru" %}Применить{% else %}Застосувати{% endif %}</button>
+
       <div class="view-switch"><button type="button" id="listBtn">☷</button><button type="button" id="gridBtn" class="active">▦</button></div>
     </form>
 
@@ -86,4 +86,16 @@
     <section class="sidebox safety"><h3>{% if lang=="ru" %}Правила безопасности{% else %}Правила безпеки{% endif %}</h3><p>◉ {% if lang=="ru" %}Не отправляйте предоплату незнакомым{% else %}Не надсилайте передоплату незнайомим{% endif %}</p><p>◉ {% if lang=="ru" %}Общайтесь в чате платформы{% else %}Спілкуйтеся в чаті платформи{% endif %}</p><p>◉ {% if lang=="ru" %}Если что-то подозрительно — пожалуйтесь{% else %}Якщо щось підозріло — поскаржтесь{% endif %}</p></section>
   </aside>
 </div>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const form = document.querySelector(".filters");
+  if (!form) return;
+
+  form.querySelectorAll("select").forEach(function (field) {
+    field.addEventListener("change", function () {
+      form.submit();
+    });
+  });
+});
+</script>
 {% endblock %}
