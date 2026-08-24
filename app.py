@@ -46,7 +46,7 @@ Path(app.config["UPLOAD_FOLDER"]).mkdir(parents=True, exist_ok=True)
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    phone = db.Column(db.String(32), unique=True, nullable=False)
+    phone = db.Column(db.String(255), unique=True, nullable=False)
     show_phone = db.Column(db.Boolean, default=True)
     email = db.Column(db.String(255), unique=True, nullable=True)
     name = db.Column(db.String(80), default="Користувач")
