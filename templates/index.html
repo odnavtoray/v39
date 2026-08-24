@@ -91,7 +91,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const form = document.querySelector(".filters");
   if (!form) return;
 
-  form.querySelectorAll("select").forEach(function (field) {
+  form.querySelectorAll("select, .city-filter").forEach(function (field) {
     field.addEventListener("change", function () {
       form.submit();
     });
