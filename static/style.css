@@ -1680,4 +1680,24 @@ body.listing-photo-viewer-open{overflow:hidden}
   border:1px solid #f3d0d0;
   width:max-content;
   max-width:100%;
+}.chat-message-row{
+  display:flex;
+  align-items:flex-end;
+  gap:6px;
+  margin:6px 0;
+}
+
+.chat-message-row.mine{
+  flex-direction:row-reverse;
+}
+
+.chat-message-row .bubble{
+  margin:0;
+}
+
+.message-time{
+  font-size:11px;
+  color:#8a94a3;
+  white-space:nowrap;
+  margin-bottom:3px;
 }
