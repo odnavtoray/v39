@@ -25,8 +25,9 @@
   
 </div>
     <small class="message-time">{{ m.created_at.strftime('%H:%M') if m.created_at else '' }}</small>
+    </div>
 {% else %}<p class="muted">{% if lang=="ru" %}Сообщений пока нет.{% else %}Повідомлень поки немає.{% endif %}</p>{% endfor %}
-</div>
+
 <form method="post" action="/chat/{{listing.id}}/{{partner.id}}/send" class="messagebox chat-send-form" enctype="multipart/form-data">
 <textarea name="text" rows="3" placeholder="{% if lang=='ru' %}Написать сообщение...{% else %}Написати повідомлення...{% endif %}"></textarea>
 
