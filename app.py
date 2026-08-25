@@ -573,7 +573,11 @@ def inject():
         setting = UserSetting.query.filter_by(user_id=me.id).first()
         sound_enabled = setting.sound_enabled if setting else True
     notification_count = Notification.query.filter_by(user_id=me.id, is_read=False).filter(Notification.kind != "message").count() if me else 0
-    return {"me": me, "unread_count": unread, "sound_enabled": sound_enabled,
+    def kyiv_time(dt):
+    if not dt:
+        return None
+    return dt.replace(tzinfo=ZoneInfo("UTC")).astimezone(ZoneInfo("Europe/Kyiv"))
+    return {"kyiv_time": kyiv_time,"me": me, "unread_count": unread, "sound_enabled": sound_enabled,
             "notification_count": notification_count,
             "lang": session.get("lang","uk"), "admin_user": admin_user,
             "message_parts": message_parts, "state_for": state_for, "days_left": days_left,
