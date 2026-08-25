@@ -24,7 +24,7 @@
 {% if parts.image %}<a href="{{parts.image}}" target="_blank"><img class="chat-bubble-image" src="{{parts.image}}"></a>{% else %}{{parts.text}}{% endif %}
   
 </div>
-    <small class="message-time">{{ m.created_at.strftime('%H:%M') if m.created_at else '' }}</small>
+    <small class="message-time">{{ kyiv_time(m.created_at).strftime('%H:%M') if m.created_at else '' }}</small>
     </div>
 {% else %}<p class="muted">{% if lang=="ru" %}Сообщений пока нет.{% else %}Повідомлень поки немає.{% endif %}</p>{% endfor %}
 
