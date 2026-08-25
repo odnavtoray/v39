@@ -21,6 +21,7 @@
 {% for m in msgs %}{% set parts=message_parts(m.text) %}
 <div class="bubble {% if me and m.sender_id==me.id %}mine{% endif %}">
 {% if parts.image %}<a href="{{parts.image}}" target="_blank"><img class="chat-bubble-image" src="{{parts.image}}"></a>{% else %}{{parts.text}}{% endif %}
+  <small class="message-time">{{ m.created_at.strftime('%H:%M') if m.created_at else '' }}</small>
 </div>
 {% else %}<p class="muted">{% if lang=="ru" %}Сообщений пока нет.{% else %}Повідомлень поки немає.{% endif %}</p>{% endfor %}
 </div>
