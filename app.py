@@ -739,7 +739,7 @@ def sitemap():
     response = make_response(xml)
     response.headers["Content-Type"] = "application/xml"
     return response
-    @app.route("/robots.txt")
+@app.route("/robots.txt")
 def robots():
     text = """User-agent: *
 Allow: /
