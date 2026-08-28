@@ -730,12 +730,29 @@ def healthz():
     return jsonify({"status":"ok","version":"beta-v24"}), 200
 @app.route("/sitemap.xml")
 def sitemap():
-    xml = """<?xml version="1.0" encoding="UTF-8"?>
+    active_listings = (
+        Listing.query
+        .join(ListingState, ListingState.listing_id == Listing.id)
+        .filter(ListingState.status == "active")
+        .all()
+    )
+
+    urls = ["https://odnadruga.com.ua/"]
+    urls += [
+        f"https://odnadruga.com.ua/listing/{listing.id}"
+        for listing in active_listings
+    ]
+
+    url_xml = "\n".join(
+        f"    <url><loc>{url}</loc></url>"
+        for url in urls
+    )
+
+    xml = f"""<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>https://odnadruga.com.ua/</loc>
-  </url>
+{url_xml}
 </urlset>"""
+
     response = make_response(xml)
     response.headers["Content-Type"] = "application/xml"
     return response
