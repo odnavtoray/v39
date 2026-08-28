@@ -10,6 +10,30 @@
 {% block twitter_title %}{{ listing.title }} — {{ listing.brand }} {{ listing.model }}{% endblock %}
 {% block twitter_description %}{{ listing.title }} — {{ listing.brand }} {{ listing.model }}, розмір {{ listing.size }}{% endblock %}
 {% block twitter_image %}https://odnadruga.com.ua{{ listing.images[0] }}{% endblock %}
+{% block structured_data %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Product",
+  "name": {{ (listing.title ~ " — " ~ listing.brand ~ " " ~ listing.model)|tojson }},
+  "image": ["https://odnadruga.com.ua{{ listing.images[0] }}"],
+  "description": {{ (listing.title ~ ", розмір " ~ listing.size ~ ". Одиночне взуття на 1/2 Одна Друга.")|tojson }},
+  "brand": {
+    "@type": "Brand",
+    "name": {{ listing.brand|tojson }}
+  },
+  "sku": {{ listing.id|string|tojson }},
+  "url": "https://odnadruga.com.ua/listing/{{ listing.id }}"{% if listing.kind == "sale" and listing.price %},
+  "offers": {
+    "@type": "Offer",
+    "priceCurrency": "UAH",
+    "price": "{{ listing.price }}",
+    "availability": "{% if listing_state.status == 'active' %}https://schema.org/InStock{% else %}https://schema.org/OutOfStock{% endif %}",
+    "url": "https://odnadruga.com.ua/listing/{{ listing.id }}"
+  }{% endif %}
+}
+</script>
+{% endblock %}
 {% block content %}
 <div class="detail-layout">
   <section class="gallery">
