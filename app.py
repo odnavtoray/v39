@@ -739,7 +739,16 @@ def sitemap():
     response = make_response(xml)
     response.headers["Content-Type"] = "application/xml"
     return response
-    
+    @app.route("/robots.txt")
+def robots():
+    text = """User-agent: *
+Allow: /
+
+Sitemap: https://odnadruga.com.ua/sitemap.xml
+"""
+    response = make_response(text)
+    response.headers["Content-Type"] = "text/plain"
+    return response
 @app.route("/")
 def index():
     log_visitor_event("page_view", "home")
