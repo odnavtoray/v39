@@ -6,6 +6,10 @@
 {% block og_description %}{{ listing.title }} — {{ listing.brand }} {{ listing.model }}, розмір {{ listing.size }}. Одиночне взуття на 1/2 Одна Друга.{% endblock %}
 {% block og_url %}https://odnadruga.com.ua/listing/{{ listing.id }}{% endblock %}
 {% block og_image %}https://odnadruga.com.ua{{ listing.images[0] }}{% endblock %}
+{% block twitter_card %}summary_large_image{% endblock %}
+{% block twitter_title %}{{ listing.title }} — {{ listing.brand }} {{ listing.model }}{% endblock %}
+{% block twitter_description %}{{ listing.title }} — {{ listing.brand }} {{ listing.model }}, розмір {{ listing.size }}{% endblock %}
+{% block twitter_image %}https://odnadruga.com.ua{{ listing.images[0] }}{% endblock %}
 {% block content %}
 <div class="detail-layout">
   <section class="gallery">
