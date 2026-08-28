@@ -728,7 +728,18 @@ def update_presence():
 @app.route("/healthz")
 def healthz():
     return jsonify({"status":"ok","version":"beta-v24"}), 200
-
+@app.route("/sitemap.xml")
+def sitemap():
+    xml = """<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://odnadruga.com.ua/</loc>
+  </url>
+</urlset>"""
+    response = make_response(xml)
+    response.headers["Content-Type"] = "application/xml"
+    return response
+    
 @app.route("/")
 def index():
     log_visitor_event("page_view", "home")
