@@ -2,7 +2,7 @@
 <html lang="{{'ru' if lang=='ru' else 'uk'}}"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>{% block title %}Одна Друга — одиночне взуття | купити, продати, обміняти або віддати{% endblock %}</title>
-<meta name="description" content="Одна Друга (1/2) — сервіс одиночного взуття в Україні. Купити, продати, обміняти або віддати один черевик, один кросівок, ліве чи праве взуття.">
+<meta name="description" content="{% block description %}Одна Друга (1/2) — сервіс одиночного взуття в Україні. Купити, продати, обміняти або віддати один черевик, один кросівок, ліве чи праве взуття.{% endblock %}">
 {% block canonical %}{% endblock %}
 <link rel="stylesheet" href="/static/style.css">
 </head><body>
