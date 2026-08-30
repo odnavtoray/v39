@@ -1,4 +1,25 @@
-{% extends "base.html" %}{% block content %}
+{% extends "base.html" %}
+{% block structured_data %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebSite",
+      "name": "1/2 Одна Друга",
+      "url": "https://odnadruga.com.ua/"
+    },
+    {
+      "@type": "Organization",
+      "name": "1/2 Одна Друга",
+      "url": "https://odnadruga.com.ua/",
+      "logo": "https://odnadruga.com.ua/static/logo.jpg"
+    }
+  ]
+}
+</script>
+{% endblock %}
+{% block content %}
 <div class="home-layout">
   <aside class="leftcol">
     <section class="sidebox">
