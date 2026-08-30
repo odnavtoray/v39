@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}{{ listing.title }} — {{ listing.brand }} {{ listing.model }} | 1/2 Одна Друга{% endblock %}
+{% block title %}{{ listing.title }} — {{ listing.brand }} {{ listing.model }} — {% if listing.side=="left" %}{% if lang=="ru" %}левая{% else %}ліва{% endif %}{% else %}{% if lang=="ru" %}правая{% else %}права{% endif %}{% endif %}, {% if lang=="ru" %}размер{% else %}розмір{% endif %} {{ listing.size }} | 1/2 Одна Друга{% endblock %}
 {% block description %}{{ listing.title }} — {{ listing.brand }} {{ listing.model }}, розмір {{ listing.size }}. Купити, продати або обміняти одиночне взуття на 1/2 Одна Друга.{% endblock %}
 {% block canonical %}<link rel="canonical" href="https://odnadruga.com.ua/listing/{{ listing.id }}">{% endblock %}
 {% block og_title %}{{ listing.title }} — {{ listing.brand }} {{ listing.model }}{% endblock %}
