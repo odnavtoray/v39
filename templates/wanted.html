@@ -1,4 +1,8 @@
-{% extends "base.html" %}{% block content %}
+{% extends "base.html" %}
+{% block title %}{% if lang=="ru" %}Ищу один ботинок или кроссовок | 1/2 Одна Друга{% else %}Шукаю один черевик або кросівок | 1/2 Одна Друга{% endif %}{% endblock %}
+{% block description %}{% if lang=="ru" %}Найдите левый или правый ботинок, кроссовок нужного размера. Создайте запрос на поиск одиночной обуви.{% else %}Знайдіть лівий або правий черевик чи кросівок потрібного розміру. Створіть запит на пошук одиночного взуття.{% endif %}{% endblock %}
+{% block canonical %}<link rel="canonical" href="https://odnadruga.com.ua/wanted">{% endblock %}
+{% block content %}
 <div class="wanted-page">
 <section class="formcard wanted-create">
   <div><h1>{% if lang=='ru' %}Ищу конкретное{% else %}Шукаю конкретне{% endif %}</h1><p class="muted">{% if lang=='ru' %}Укажите параметры. Совпадения показываются обычными карточками объявлений.{% else %}Вкажіть параметри. Тут більше не буде «кодів» — збіги показуються звичайними картками оголошень.{% endif %}</p></div>
