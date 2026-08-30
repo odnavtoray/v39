@@ -978,7 +978,9 @@ def forgot_password():
         return redirect(url_for("login"))
     return render_template("forgot_password.html")
 
-
+@app.route("/favicon.ico")
+def favicon():
+    return app.send_static_file("favicon.ico")
 @app.route("/logout")
 def logout():
     session.clear()
