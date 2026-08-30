@@ -43,7 +43,12 @@
       <a class="{{'active' if kind=='exchange' else ''}}" href="/?kind=exchange">{% if lang=="ru" %}Обменяю{% else %}Обміняю{% endif %}</a>
       <a class="{{'active' if kind=='give' else ''}}" href="/?kind=give">{% if lang=="ru" %}Отдам{% else %}Віддам{% endif %}</a>
     </div>
-
+{% if kind == 'sale' %}
+<div class="category-seo">
+  <h2>{% if lang=='ru' %}Купить один ботинок или кроссовок{% else %}Купити один черевик або кросівок{% endif %}</h2>
+  <p>{% if lang=='ru' %}Объявления о продаже одиночной обуви: левый или правый ботинок, кроссовок и другая обувь.{% else %}Оголошення про продаж одиночного взуття: лівий або правий черевик, кросівок та інше взуття.{% endif %}</p>
+</div>
+{% endif %}
     <section id="catalog" class="catalog gridmode">
       {% for l in listings %}
       <article class="card">
