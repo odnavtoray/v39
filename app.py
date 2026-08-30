@@ -843,8 +843,18 @@ def register():
         confirm = request.form.get("confirm","")
         if not re.match(r"^[^\s@]+@[^\s@]+\.[^\s@]+$", email):
             flash(tr("Вкажіть коректну електронну пошту.", "Укажите корректную электронную почту.")); return redirect(url_for("register"))
-        if code != "1111":
-            flash(tr("Невірний код. У Beta використовуйте 1111.", "Неверный код. В Beta используйте 1111.")); return redirect(url_for("register"))
+        import time
+        import hashlib
+        if (
+    hashlib.sha256(code.encode()).hexdigest() != session.get("email_code_hash")
+    or email != session.get("email_code_email")
+    or int(time.time()) > session.get("email_code_expires", 0)
+):
+    flash(tr(
+        "Невірний або прострочений код.",
+        "Неверный или просроченный код."
+    ))
+    return redirect(url_for("register"))
         if len(password) < 6:
             flash(tr("Пароль має містити щонайменше 6 символів.", "Пароль должен содержать минимум 6 символов.")); return redirect(url_for("register"))
         if password != confirm:
@@ -866,12 +876,71 @@ def register():
 
 @app.post("/auth/send-code")
 def send_code():
-    email = request.form.get("email","").strip().lower()
-    if not email:
-        return jsonify({"ok":False,"message":tr("Вкажіть електронну пошту.","Укажите электронную почту.")}), 400
-    # Beta v26: mail provider is not connected yet; the UI exposes the beta code.
-    return jsonify({"ok":True,"wait":60,"message":tr("Beta-код: 1111","Beta-код: 1111")})
+    import os
+    import json
+    import secrets
+    import time
+    import hashlib
+    import urllib.request
+    import urllib.error
 
+    email = request.form.get("email", "").strip().lower()
+
+    if not email:
+        return jsonify({
+            "ok": False,
+            "message": tr("Вкажіть електронну пошту.", "Укажите электронную почту.")
+        }), 400
+
+    code = f"{secrets.randbelow(1000000):06d}"
+
+    data = json.dumps({
+        "from": os.getenv("MAIL_FROM"),
+        "to": [email],
+        "subject": "Код підтвердження — Одна Друга",
+        "html": f"""
+            <h2>Одна Друга</h2>
+            <p>Ваш код підтвердження:</p>
+            <p style="font-size:28px;font-weight:bold;letter-spacing:4px;">{code}</p>
+            <p>Код дійсний 10 хвилин.</p>
+        """
+    }).encode()
+
+    req = urllib.request.Request(
+        "https://api.resend.com/emails",
+        data=data,
+        headers={
+            "Authorization": "Bearer " + os.getenv("RESEND_API_KEY", ""),
+            "Content-Type": "application/json",
+            "User-Agent": "odnadruga/1.0"
+        },
+        method="POST"
+    )
+
+    try:
+        with urllib.request.urlopen(req) as response:
+            response.read()
+    except Exception:
+        return jsonify({
+            "ok": False,
+            "message": tr(
+                "Не вдалося надіслати код. Спробуйте ще раз.",
+                "Не удалось отправить код. Попробуйте ещё раз."
+            )
+        }), 500
+
+    session["email_code_hash"] = hashlib.sha256(code.encode()).hexdigest()
+    session["email_code_email"] = email
+    session["email_code_expires"] = int(time.time()) + 600
+
+    return jsonify({
+        "ok": True,
+        "wait": 60,
+        "message": tr(
+            "Код надіслано на електронну пошту.",
+            "Код отправлен на электронную почту."
+        )
+    })
 @app.route("/forgot-password", methods=["GET","POST"])
 def forgot_password():
     if request.method == "POST":
@@ -883,8 +952,18 @@ def forgot_password():
         if not user:
             flash(tr("Користувача з такою поштою не знайдено.","Пользователь с такой почтой не найден."))
             return redirect(url_for("forgot_password"))
-        if code != "1111":
-            flash(tr("Невірний код. У Beta використовуйте 1111.","Неверный код. В Beta используйте 1111."))
+        import time
+        import hashlib
+
+        if (
+            hashlib.sha256(code.encode()).hexdigest() != session.get("email_code_hash")
+            or email != session.get("email_code_email")
+            or int(time.time()) > session.get("email_code_expires", 0)
+        ):
+            flash(tr(
+                "Невірний або прострочений код.",
+                "Неверный или просроченный код."
+            ))
             return redirect(url_for("forgot_password"))
         if len(password) < 6 or password != confirm:
             flash(tr("Перевірте пароль і повторення пароля.","Проверьте пароль и повтор пароля."))
