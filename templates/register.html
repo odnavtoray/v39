@@ -6,7 +6,7 @@
 <label>{% if lang=="ru" %}Имя{% else %}Ім’я{% endif %}<input name="name" maxlength="10" required></label>
 <label>{% if lang=="ru" %}Электронная почта{% else %}Електронна пошта{% endif %}<input id="authEmail" type="email" name="email" autocomplete="email" placeholder="name@example.com" required></label>
 <div class="sms-row"><button type="button" class="outline" id="sendEmailCode">{% if lang=="ru" %}Получить код{% else %}Отримати код{% endif %}</button><span id="emailCodeStatus" class="muted"></span></div>
-<label>{% if lang=="ru" %}Код из письма{% else %}Код із листа{% endif %}<input name="code" inputmode="numeric" placeholder="1111" required></label>
+<label>{% if lang=="ru" %}Код из письма{% else %}Код із листа{% endif %}<input name="code" inputmode="numeric"  required></label>
 <label>{% if lang=="ru" %}Придумайте пароль{% else %}Придумайте пароль{% endif %}<span class="password-wrap"><input id="regPassword" type="password" name="password" minlength="6" autocomplete="new-password" required><button type="button" class="password-eye" data-password-toggle="regPassword" aria-label="Показать пароль">◉</button></span></label>
 <label>{% if lang=="ru" %}Повторите пароль{% else %}Повторіть пароль{% endif %}<span class="password-wrap"><input id="regConfirm" type="password" name="confirm" minlength="6" autocomplete="new-password" required><button type="button" class="password-eye" data-password-toggle="regConfirm" aria-label="Показать пароль">◉</button></span></label>
 <button class="primary">{% if lang=="ru" %}Зарегистрироваться{% else %}Зареєструватися{% endif %}</button>
