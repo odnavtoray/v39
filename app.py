@@ -846,15 +846,15 @@ def register():
         import time
         import hashlib
         if (
-    hashlib.sha256(code.encode()).hexdigest() != session.get("email_code_hash")
-    or email != session.get("email_code_email")
-    or int(time.time()) > session.get("email_code_expires", 0)
-):
-    flash(tr(
-        "Невірний або прострочений код.",
-        "Неверный или просроченный код."
-    ))
-    return redirect(url_for("register"))
+            hashlib.sha256(code.encode()).hexdigest() != session.get("email_code_hash")
+            or email != session.get("email_code_email")
+            or int(time.time()) > session.get("email_code_expires", 0)
+        ):
+            flash(tr(
+                "Невірний або прострочений код.",
+                "Неверный или просроченный код."
+            ))
+            return redirect(url_for("register"))
         if len(password) < 6:
             flash(tr("Пароль має містити щонайменше 6 символів.", "Пароль должен содержать минимум 6 символов.")); return redirect(url_for("register"))
         if password != confirm:
