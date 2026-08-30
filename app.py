@@ -868,6 +868,9 @@ def register():
         db.session.add(SiteEvent(user_id=user.id, event_type="registration", value=user.name))
         db.session.add(UserAuth(user_id=user.id, password_hash=generate_password_hash(password)))
         db.session.commit()
+        session.pop("email_code_hash", None)
+        session.pop("email_code_email", None)
+        session.pop("email_code_expires", None)
         if AdminAccess.query.count() == 0:
             db.session.add(AdminAccess(user_id=user.id)); db.session.commit()
         session["user_id"] = user.id; session.permanent = True
@@ -974,6 +977,9 @@ def forgot_password():
         else:
             auth.password_hash=generate_password_hash(password)
         db.session.commit()
+        session.pop("email_code_hash", None)
+        session.pop("email_code_email", None)
+        session.pop("email_code_expires", None)
         flash(tr("Пароль оновлено. Тепер увійдіть.","Пароль обновлён. Теперь войдите."))
         return redirect(url_for("login"))
     return render_template("forgot_password.html")
