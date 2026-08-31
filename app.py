@@ -1618,8 +1618,12 @@ def delete_listing(listing_id):
     if not me or listing.owner_id != me.id:
         return redirect(url_for("login"))
     Favorite.query.filter_by(listing_id=listing.id).delete()
-    MessageRead.query.filter(MessageRead.message_id.in_(
-        db.session.query(Message.id).filter_by(listing_id=listing.id)
+    FavoriteNoticeHistory.query.filter_by(listing_id=listing.id).delete()
+    ExchangeOffer.query.filter_by(target_listing_id=listing.id).delete(synchronize_session=False)
+    ModerationEvent.query.filter_by(listing_id=listing.id).delete()
+    MessageRead.query.filter(
+        MessageRead.message_id.in_(
+            db.session.query(Message.id).filter_by(listing_id=listing.id)
     )).delete(synchronize_session=False)
     Message.query.filter_by(listing_id=listing.id).delete()
     Complaint.query.filter_by(listing_id=listing.id).delete()
