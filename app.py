@@ -760,6 +760,7 @@ def sitemap():
 def robots():
     text = """User-agent: *
 Allow: /
+Disallow: /wanted
 
 Sitemap: https://odnadruga.com.ua/sitemap.xml
 """
