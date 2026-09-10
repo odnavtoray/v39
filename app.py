@@ -2087,6 +2087,13 @@ with app.app_context():
     except Exception:
         db.session.rollback()
     db.create_all()
+    if db.engine.dialect.name == "postgresql":
+        try:
+            db.session.execute(db.text("ALTER TABLE visitor_event ADD COLUMN IF NOT EXISTS country_code VARCHAR(2) DEFAULT ''"))
+            db.session.execute(db.text("ALTER TABLE visitor_event ADD COLUMN IF NOT EXISTS country_name VARCHAR(80) DEFAULT ''"))
+            db.session.commit()
+        except Exception:
+            db.session.rollback()
     try:
         for u in User.query.filter(User.avatar != "").all():
             if not getattr(u,"avatar_original",""):
