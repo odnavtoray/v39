@@ -347,12 +347,29 @@ def visitor_key():
         session["visitor_key"] = key
     return key
 
+def visitor_country_code():
+    code = (
+        request.headers.get("CF-IPCountry")
+        or request.headers.get("X-Vercel-IP-Country")
+        or request.headers.get("CloudFront-Viewer-Country")
+        or ""
+    ).strip().upper()
+
+    if not re.fullmatch(r"[A-Z]{2}", code):
+        return ""
+    return code
+
+
 def log_visitor_event(event_type, value=""):
-    # Do not count static files / internal browser requests here; this helper is called explicitly by pages.
+    # Do not count static files / internal browser requests here
     me = current_user()
-    db.session.add(VisitorEvent(visitor_key=visitor_key(),
-                                user_id=me.id if me else None,
-                                event_type=event_type, value=str(value or "")[:180]))
+    db.session.add(VisitorEvent(
+        visitor_key=visitor_key(),
+        user_id=me.id if me else None,
+        event_type=event_type,
+        value=str(value or "")[:180],
+        country_code=visitor_country_code()
+    ))
     db.session.commit()
 
 def image_dhash_file(file_obj):
@@ -1521,6 +1538,17 @@ def admin_stats():
     guest_visitors=len({e.visitor_key for e in visitor_events if e.user_id is None})
     registered_visitors=len({e.user_id for e in visitor_events if e.user_id is not None})
     listing_views=sum(1 for e in visitor_events if e.event_type=="listing_view")
+        country_visitors = {}
+    for e in visitor_events:
+        code = (e.country_code or "").strip().upper()
+        if code:
+            country_visitors.setdefault(code, set()).add(e.visitor_key)
+
+    countries = sorted(
+        ((code, len(keys)) for code, keys in country_visitors.items()),
+        key=lambda item: item[1],
+        reverse=True
+    )
     registrations=sum(1 for e in site_events if e.event_type=="registration")
     conversion=round((registrations/guest_visitors*100),1) if guest_visitors else 0
 
@@ -1555,6 +1583,7 @@ def admin_stats():
         inactive_count=inactive_count, completed_count=completed_count,
         unique_visitors=unique_visitors, guest_visitors=guest_visitors,
         registered_visitors=registered_visitors, listing_views=listing_views,
+        countries=countries,
         registrations=registrations, conversion=conversion,
         searches_count=len(searches), messages_count=messages_count,
         favorites_count=favorites_count, complaints_count=complaints_count,
@@ -2033,6 +2062,10 @@ with app.app_context():
                         ("previous_price", "INTEGER DEFAULT 0")],
             "wanted": [("footwear_type", "VARCHAR(50) DEFAULT ''")],
             "listing_state": [("bumped_at", "DATETIME")],
+            "visitor_event": [
+                ("country_code", "VARCHAR(2) DEFAULT ''"),
+                ("country_name", "VARCHAR(80) DEFAULT ''"),
+            ],
             "exchange_offer": [
                 ("offer_brand", "VARCHAR(80) DEFAULT ''"),
                 ("offer_model", "VARCHAR(120) DEFAULT ''"),
