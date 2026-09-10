@@ -350,6 +350,9 @@ def visitor_key():
     return key
 
 def visitor_country_code():
+    if "visitor_country_code" in session:
+        return session.get("visitor_country_code", "")
+
     code = (
         request.headers.get("CF-IPCountry")
         or request.headers.get("X-Vercel-IP-Country")
@@ -358,7 +361,27 @@ def visitor_country_code():
     ).strip().upper()
 
     if not re.fullmatch(r"[A-Z]{2}", code):
-        return ""
+        try:
+            from urllib.request import urlopen
+            from urllib.parse import quote
+
+            ip = request.headers.get("X-Forwarded-For") or request.remote_addr or ""
+            ip = ip.split(",")[0].strip()
+
+            with urlopen(
+                "https://ipwho.is/" + quote(ip, safe=""),
+                timeout=2
+            ) as response:
+                data = json.loads(response.read().decode("utf-8"))
+
+            code = str(data.get("country_code") or "").strip().upper()
+        except Exception:
+            code = ""
+
+    if not re.fullmatch(r"[A-Z]{2}", code):
+        code = ""
+
+    session["visitor_country_code"] = code
     return code
 
 
