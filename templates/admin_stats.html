@@ -48,6 +48,17 @@
     <section class="formcard"><h2>{% if lang=="ru" %}Самые активные города{% else %}Найактивніші міста{% endif %}</h2>
       {% for name,n in top_cities %}<div class="stat-row"><span>{{name}}</span><b>{{n}}</b></div>{% else %}<p class="muted">—</p>{% endfor %}
     </section>
+      <section class="formcard">
+    <h2>{% if lang=="ru" %}Страны посетителей{% else %}Країни відвідувачів{% endif %}</h2>
+    {% for code,n in countries %}
+      <div class="stat-row">
+        <span class="country-name" data-country-code="{{code}}">{{code}}</span>
+        <b>{{n}}</b>
+      </div>
+    {% else %}
+      <p class="muted">—</p>
+    {% endfor %}
+  </section>
     <section class="formcard"><h2>{% if lang=="ru" %}Когда публикуют{% else %}Коли публікують{% endif %}</h2>
       {% for h,n in hours %}<div class="stat-row"><span>{{"%02d"|format(h)}}:00</span><b>{{n}}</b></div>{% else %}<p class="muted">—</p>{% endfor %}
     </section>
@@ -59,4 +70,17 @@
     </section>
   </div>
 </div>
+<script>
+  try {
+    const regionNames = new Intl.DisplayNames(
+      ["{{ 'ru' if lang == 'ru' else 'uk' }}"],
+      {type: "region"}
+    );
+
+    document.querySelectorAll("[data-country-code]").forEach(function(item) {
+      const code = item.dataset.countryCode;
+      item.textContent = regionNames.of(code) + " (" + code + ")";
+    });
+  } catch (error) {}
+</script>
 {% endblock %}
