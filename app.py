@@ -1538,7 +1538,7 @@ def admin_stats():
     guest_visitors=len({e.visitor_key for e in visitor_events if e.user_id is None})
     registered_visitors=len({e.user_id for e in visitor_events if e.user_id is not None})
     listing_views=sum(1 for e in visitor_events if e.event_type=="listing_view")
-        country_visitors = {}
+    country_visitors = {}
     for e in visitor_events:
         code = (e.country_code or "").strip().upper()
         if code:
