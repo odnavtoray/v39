@@ -235,6 +235,8 @@ class VisitorEvent(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=True)
     event_type = db.Column(db.String(40), nullable=False)  # page_view/listing_view
     value = db.Column(db.String(180), default="")
+    country_code = db.Column(db.String(2), default="")
+    country_name = db.Column(db.String(80), default="")
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
 class ModerationEvent(db.Model):
